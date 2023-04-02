@@ -1,0 +1,68 @@
+h1 {
+    text-align: center;
+    font-weight: 300;
+    font-size: 48px;
+    color: #ccc;
+}
+
+.container {
+    background-color: #2f313d;
+    height: 100vh;
+}
+
+.market-status {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin: 5vh;
+    align-items: center;
+}
+
+.market-status span {
+    color: #ccc;
+    font-size: 24px;
+}
+
+.indices {
+    display: flex;
+    flex-direction: row;
+}
+
+.index-status {
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 10px;
+    margin-left: 1vw;
+    margin-right: 1vw;
+    padding: 5px;
+}
+
+nav {
+    padding: 10px;
+}
+  
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+  
+nav li {
+    margin: 0 10px;
+}
+  
+nav a {
+    font-size: 24px;
+    text-decoration: none;
+    color: #ccc;
+    padding: 5px 10px;
+    transition: text-decoration 0.3s ease;
+    transition: color 0.3s ease;
+}
+  
+nav a:hover {
+    text-decoration: underline;
+    color: rgb(230, 230, 230);
+}  
