@@ -11,7 +11,7 @@ export class BondsService {
 
     }
 
-    fetchUSTreasuries(): Observable<Array<Bond>> {
+    public fetchUSTreasuries(): Observable<Array<Bond>> {
         return of(BONDS_TEST_DATA)
             .pipe(map((bondData: BondInterface[]) => {
                 const bonds = new Array<Bond>();
