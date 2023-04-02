@@ -39,7 +39,7 @@ export class GeneralMarketService {
                 const openingHour = 9;
                 const openingMinute = 30;
                 const closingHour = 16;
-                const closingMinute = 30;
+                const closingMinute = 0;
 
                 const options = {timeZone: 'America/New_York'};
                 const currentEastCoastDate = new Date(today.toLocaleString('en_US', options));
