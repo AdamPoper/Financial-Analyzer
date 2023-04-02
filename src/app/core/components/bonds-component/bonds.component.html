@@ -1,1 +1,25 @@
-<p>bonds-component works!</p>
+<div class="container">
+    <h3>US Treasuries</h3>
+    <div class="divide-line"></div>
+    <div class="bond-container">
+        <div 
+            class="bond"
+            *ngFor="let bond of bonds"
+        >
+            <span
+                [ngStyle]="{
+                    'color': bond.yieldChange < 0 ? '#eb4b4b' : '#3dd153'
+                }"
+            >
+                {{ bond.title }}
+            </span>
+            <span
+                [ngStyle]="{
+                    'color': bond.yieldChange < 0 ? '#eb4b4b' : '#3dd153'
+                }"
+            >
+                {{ roundYield(bond.yieldChange) + '%'}}
+            </span>
+        </div>
+    </div>
+</div>
