@@ -1,0 +1,103 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 5vh;
+}
+
+.search-container {
+    display: flex;
+    justify-content: center;
+}
+
+.quote-header {
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    color: #ccc;
+    text-align: center;
+    font-size: 32px;
+    margin-top: 3vh;
+}
+  
+input[type=text] {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 60%;
+}
+  
+button[type=submit] {
+    background-color: #3485d1;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+  
+button[type=submit]:hover {
+    background-color: #1d7ad1;
+}
+
+.quote-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: 5vh;
+}
+
+.price-chart {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 40%;
+}
+
+.time-periods {
+    display: flex;
+    justify-content: space-between;
+}
+
+.time-periods span {
+    color: #ccc;
+    padding: 3px;
+    border-radius: 5px;
+}
+
+.time-periods span:hover {
+    cursor: pointer;
+}
+
+.selected-time-period {
+    background-color: #565a70;
+}
+
+.dividing-line {
+    height: 40vh;
+    width: 2px;
+    background-color: #ccc;
+    margin-left: 3%;
+    margin-right: 3%;
+}
+
+.quote-details {
+    display: flex;
+    flex-direction: column;
+    height: 30vh;
+    justify-content: space-between;
+    width: 20%;
+}
+
+.quote-details span {
+    color: #ccc;
+}
+
+.quote-details-container {
+    display: flex;
+    justify-content: space-between;
+}

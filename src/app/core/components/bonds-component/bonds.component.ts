@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BondsService } from '../../services/bonds.service';
 import { Bond } from '../../models/bond';
+import { AppUtil } from '../../util/app-util';
 
 @Component({
   selector: 'app-bonds-component',
@@ -24,7 +25,7 @@ export class BondsComponent implements OnInit {
       .subscribe(bonds => this.bonds = bonds);
   }
 
-  public roundYield(yieldChange: number) {
-    return Math.round(yieldChange * 100) / 100;
+  public roundYield(yieldChange: number): number {
+    return AppUtil.round(yieldChange, 2);
   }
 }

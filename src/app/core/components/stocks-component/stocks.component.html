@@ -1,1 +1,83 @@
-<p>stocks-component works!</p>
+<div class="container">
+    <div class="search-container">
+        <form>
+            <input 
+                type="text" 
+                placeholder="Search Ticker..."
+                [(ngModel)]="ticker"
+                name="ticker-search"
+            >
+            <button type="submit" (click)="onTickerSearch()">Submit</button>
+        </form>
+    </div>
+    <!-- <div *ngIf="quote" class="quote-header">
+        <h1>{{ quote.name }}</h1>
+        <span>{{ quote.changesPercentage }}</span>
+    </div> -->
+    <div 
+        *ngIf="shouldDisplayQuoteInfo" 
+        class="quote-container"
+    >
+        <div class="price-chart">
+            <div class="time-periods">
+                <span 
+                    *ngFor="let option of priceHistoryOptions"
+                    [class.selected-time-period]="option === selectedTimePeriodOption"
+                    (click)="onTimePeriodChange(option)"
+                >
+                    {{ option }}
+                </span>
+            </div>
+            <canvas 
+                baseChart
+                [type]="'line'"
+                [data]="chartConfigData"
+                [options]="chartConfigOptions"
+            >
+            </canvas>
+        </div>
+        <div class="dividing-line"></div>
+        <div *ngIf="quote" class="quote-details">
+            <div class="quote-details-container">
+                <span>Symbol</span>
+                <span>{{ quote.symbol }}</span>
+            </div>
+            <div class="quote-details-container">
+                <span>Company Name</span>
+                <span>{{ quote.name }}</span>
+            </div>
+            <div class="quote-details-container">
+                <span>Day Low</span>
+                <span>{{ round(quote.dayLow).toFixed(2) }}</span>
+            </div>
+            <div class="quote-details-container">
+                <span>Day High</span>
+                <span>{{ round(quote.dayHigh).toFixed(2) }}</span>
+            </div>
+            <div class="quote-details-container">
+                <span>52 Week High</span>
+                <span>{{ round(quote.yearHigh).toFixed(2) }}</span>
+            </div>
+            <div class="quote-details-container">
+                <span>52 Week Low</span>
+                <span>{{ round(quote.yearLow).toFixed(2) }}</span>
+            </div>
+            <div class="quote-details-container">
+                <span>Market Cap</span>
+                <span>{{ '$' + quote.marketCap.toLocaleString() }}</span>
+            </div>
+            <div class="quote-details-container">
+                <span>Earnings Per Share</span>
+                <span>{{ quote.eps }}</span>
+            </div>
+            <div class="quote-details-container">
+                <span>P/E</span>
+                <span>{{ quote.pe }}</span>
+            </div>
+            <div class="quote-details-container">
+                <span>Earnings Annoucement</span>
+                <span>{{ dateFormat(quote.earningsAnnouncement) }}</span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { IS_MARKET_OPEN_TEST_DATA } from "../test-data/market-open-test-data";
 import { Observable, map, of } from "rxjs";
+import { AppUtil } from "../util/app-util";
 
 @Injectable({providedIn: 'root'})
 export class GeneralMarketService {
@@ -19,10 +20,7 @@ export class GeneralMarketService {
                     for (const holidays of holidaysData) {
                         const year = holidays["year"];
                         if (year !== undefined && year === thisYear) {
-                            delete holidays["year"];
-                            const month = String(today.getMonth() + 1).padStart(2, '0');
-                            const day = String(today.getDate()).padStart(2, '0');
-                            const formattedDate = `${year}-${month}-${day}`;
+                            const formattedDate = AppUtil.getFormattedDate(today);
                             for (const holiday of Object.keys(holidays)) {
                                 if (holidays[holiday] === formattedDate) {
                                     return false;

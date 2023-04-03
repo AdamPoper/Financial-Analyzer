@@ -7,6 +7,8 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { StocksComponent } from './core/components/stocks-component/stocks.component';
 import { BondsComponent } from './core/components/bonds-component/bonds.component';
 import { CommoditiesComponent } from './core/components/commodities-component/commodities.component';
+import { FormsModule } from '@angular/forms';
+import { NgChartsModule } from 'ng2-charts';
 
 @NgModule({
   declarations: [
@@ -18,7 +20,9 @@ import { CommoditiesComponent } from './core/components/commodities-component/co
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule,
+    NgChartsModule
   ],
   providers: [HttpClient],
   bootstrap: [AppComponent]
