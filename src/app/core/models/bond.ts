@@ -32,13 +32,13 @@ export const BondNames = {
 export class Bond {
     public label: string;
     public title: string;
+    public couponRate: number;
     public yieldChange: number;
 
-    constructor({label, title, yieldChange}: {
-        label: string; title: string; yieldChange: number
-    }) {
+    constructor({label, title, couponRate, yieldChange}: Bond) {
         this.label = label;
         this.title = title;
         this.yieldChange = yieldChange;
+        this.couponRate = couponRate;
     }
 }

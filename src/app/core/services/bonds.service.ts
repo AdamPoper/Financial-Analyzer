@@ -30,9 +30,10 @@ export class BondsService {
                     const bondNames = new Map<string, string>(Object.entries(BondNames));
                     const dataSet1 = new Map<string, number>(Object.entries(bondData[0]));
                     const dataSet2 = new Map<string, number>(Object.entries(bondData[1]));
+                    const treasuryLabels = Array.from(dataSet1.keys());
 
-                    for (const key of dataSet1.keys()) {
-                        const yield1 = dataSet1.get(key);
+                    for (const key of treasuryLabels) {
+                        const yield1 = dataSet1.get(key) ?? 0.0;
                         const yield2 = dataSet2.get(key);
 
                         let yieldChange = 0;
@@ -44,6 +45,7 @@ export class BondsService {
                         const params = {
                             label: key,
                             title: name !== undefined ? name : '',
+                            couponRate: yield1,
                             yieldChange
                         };
 

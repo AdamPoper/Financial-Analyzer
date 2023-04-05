@@ -2,24 +2,38 @@
     <h3>US Treasuries</h3>
     <div class="divide-line"></div>
     <div class="bond-container">
-        <div 
-            class="bond"
-            *ngFor="let bond of bonds"
-        >
-            <span
-                [ngStyle]="{
-                    'color': bond.yieldChange < 0 ? '#eb4b4b' : '#3dd153'
-                }"
-            >
-                {{ bond.title }}
-            </span>
-            <span
-                [ngStyle]="{
-                    'color': bond.yieldChange < 0 ? '#eb4b4b' : '#3dd153'
-                }"
-            >
-                {{ roundYield(bond.yieldChange) + '%'}}
-            </span>
-        </div>
+        <table class="bond-table">
+            <thead>
+                <tr>
+                    <td>
+                        Treasury
+                    </td>
+                    <td>
+                        Coupon Rate
+                    </td>
+                    <td>
+                        Change
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr 
+                    *ngFor="let bond of bonds"
+                    [ngStyle]="{
+                        'color': bond.yieldChange < 0 ? '#eb4b4b' : '#3dd153'
+                    }"
+                >
+                    <td>
+                        {{ bond.title }}
+                    </td>
+                    <td>
+                        {{ bond.couponRate + '%' }}
+                    </td>
+                    <td>
+                        {{ roundYield(bond.yieldChange) + '%' }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
