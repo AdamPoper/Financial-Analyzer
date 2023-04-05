@@ -1,39 +1,54 @@
 <div class="container">
-    <h3>US Treasuries</h3>
-    <div class="divide-line"></div>
-    <div class="bond-container">
-        <table class="bond-table">
-            <thead>
-                <tr>
-                    <td>
-                        Treasury
-                    </td>
-                    <td>
-                        Coupon Rate
-                    </td>
-                    <td>
-                        Change
-                    </td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr 
-                    *ngFor="let bond of bonds"
-                    [ngStyle]="{
-                        'color': bond.yieldChange < 0 ? '#eb4b4b' : '#3dd153'
-                    }"
-                >
-                    <td>
-                        {{ bond.title }}
-                    </td>
-                    <td>
-                        {{ bond.couponRate + '%' }}
-                    </td>
-                    <td>
-                        {{ roundYield(bond.yieldChange) + '%' }}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="sub-container">
+        <h3>US Treasuries</h3>
+        <div class="divide-line"></div>
+        <div class="bond-container">
+            <table class="bond-table">
+                <thead>
+                    <tr>
+                        <td>
+                            Treasury
+                        </td>
+                        <td>
+                            Coupon Rate
+                        </td>
+                        <td>
+                            Change
+                        </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr 
+                        *ngFor="let bond of bonds"
+                        [ngStyle]="{
+                            'color': bond.yieldChange < 0 ? '#eb4b4b' : '#3dd153'
+                        }"
+                    >
+                        <td>
+                            {{ bond.title }}
+                        </td>
+                        <td>
+                            {{ bond.couponRate + '%' }}
+                        </td>
+                        <td>
+                            {{ roundYield(bond.yieldChange) + '%' }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="sub-container">
+        <h3>Yield Curve</h3>
+        <div class="divide-line"></div>
+        <div class="yield-curve-container">
+            <canvas
+                baseChart
+                [type]="'bar'"
+                [data]="yieldCurveConfigData"
+                [options]="yieldCurveConfigOptions"
+            >
+            </canvas>
+        </div>
     </div>
 </div>
