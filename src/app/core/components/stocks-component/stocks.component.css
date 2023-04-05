@@ -14,10 +14,29 @@
     text-align: center;
     display: flex;
     flex-direction: row;
+    justify-content: center;
     color: #ccc;
-    text-align: center;
     font-size: 32px;
     margin-top: 3vh;
+}
+
+.quote-header-contents {
+    display: flex;
+    flex-direction: column;
+}
+
+.quote-price {
+    margin-right: 20px;
+}
+
+.quote-changes-percent {
+    font-size: 28px;
+}
+
+.price-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
   
 input[type=text] {
@@ -48,7 +67,7 @@ button[type=submit]:hover {
     justify-content: center;
     align-items: center;
     width: 100%;
-    margin-top: 5vh;
+    margin-top: 2vh;
 }
 
 .price-chart {

@@ -15,7 +15,9 @@
         <span
           [ngStyle]="{'color': index.changesPercentage < 0 ? '#eb4b4b' : '#3dd153'}"
         >
-          {{ index.name + ' ' + index.changesPercentage + '%' }}  
+          {{ index.name + ' ' + 
+            (index.changesPercentage > 0 ? '+' : '') + index.changesPercentage + '%' 
+          }}  
         </span>
       </div>
     </div>

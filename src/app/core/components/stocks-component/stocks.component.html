@@ -10,10 +10,26 @@
             <button type="submit" (click)="onTickerSearch()">Submit</button>
         </form>
     </div>
-    <!-- <div *ngIf="quote" class="quote-header">
-        <h1>{{ quote.name }}</h1>
-        <span>{{ quote.changesPercentage }}</span>
-    </div> -->
+    <div *ngIf="quote" class="quote-header">
+        <div class="quote-header-contents">
+            <h1>{{ quote.name }}</h1>
+            <div class="price-info">
+                <span class="quote-price">
+                    {{ '$' + quote.price }}
+                </span>
+                <span 
+                    class="quote-changes-percent"
+                    [ngStyle]="{
+                        'color': quote.changesPercentage < 0 ? '#eb4b4b' : '#3dd153'
+                    }"
+                >
+                    {{ 
+                        (quote.changesPercentage > 0 ? '+' : '-') + round(quote.changesPercentage) + '%'
+                    }}
+                </span>
+            </div>
+        </div>
+    </div>
     <div 
         *ngIf="shouldDisplayQuoteInfo" 
         class="quote-container"
