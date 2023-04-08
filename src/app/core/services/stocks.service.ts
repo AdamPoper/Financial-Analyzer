@@ -5,6 +5,9 @@ import { Quote } from "../models/quote";
 import { map, of, Observable } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 import { Interval } from "../models/interval";
+import { DIVIDEND_TEST_DATA } from "../test-data/aapl-dividend-test-data";
+import { Dividend } from "../models/dividend";
+import { Historical } from "../models/historical";
 
 @Injectable({providedIn: 'root'})
 export class StocksService {
@@ -25,15 +28,25 @@ export class StocksService {
 
     public fetchTickerHistoricalPrices(start: Date, end: Date, ticker: string): Observable<Interval[]> {
         return of(HISTORICAL_STOCK_PRICE)
-            .pipe(map((data) => {
-                const intervals = new Array<Interval>();
-                if (data["symbol"] === ticker) {
-                    const dataSet = data["historical"];
-                    if (dataSet !== undefined && dataSet !== null && dataSet.length !== 0) {
-                        return dataSet.map(i => new Interval(i))
-                    }
-                }
-                return intervals;
+            .pipe(map((data: Historical<Interval>) => {
+               return this.mapHistorical<Interval>(data, ticker);
             }));
+    }
+
+    public fetchDividendDatabyTicker(ticker: string) {
+        return of(DIVIDEND_TEST_DATA)
+            .pipe(map((data: Historical<Dividend>) => {
+                return this.mapHistorical<Dividend>(data, ticker);
+            }));
+    }
+
+    private mapHistorical<T>(data: Historical<T>, ticker: string): Array<T> {
+        if (data.symbol === ticker) {
+            const dataSet = [...data.historical];
+            if (dataSet !== undefined && dataSet !== null && dataSet.length !== 0) {
+                return dataSet;
+            }
+        }
+        return new Array<T>();
     }
 }

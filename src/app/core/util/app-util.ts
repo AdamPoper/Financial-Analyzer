@@ -22,18 +22,29 @@ export class AppUtil {
         return new Date(parseInt(splits[0]), parseFloat(splits[1]) - 1, parseFloat(splits[2]));
     }
 
-    public static weeksAgoFromToday(numWeeks: number) {
-        const today = new Date();
-        today.setDate(today.getDate() - (numWeeks * 7));
-        return today;
+    public static weeksAgoFromSpecifiedDate(numWeeks: number, date: Date): Date {
+        date.setDate(date.getDate() - (numWeeks * 7));
+        return date;
     }
 
-    public static monthsAgoFromToday(numMonths: number) {
-        return this.weeksAgoFromToday(4 * numMonths);
+    public static monthsAgoFromSpecifiedDate(numMonths: number, date: Date): Date {
+        return this.weeksAgoFromSpecifiedDate(4 * numMonths, date);
     }
 
-    public static yearsAgoFromToday(numYears: number) {
-        return this.monthsAgoFromToday(12 * numYears);
+    public static yearsAgoFromSpecifiedDate(numYears: number, date: Date): Date {
+        return this.monthsAgoFromSpecifiedDate(12 * numYears, date);
+    }
+
+    public static weeksAgoFromToday(numWeeks: number): Date {
+        return this.weeksAgoFromSpecifiedDate(numWeeks, new Date());
+    }
+
+    public static monthsAgoFromToday(numMonths: number): Date {
+        return this.weeksAgoFromSpecifiedDate(4 * numMonths, new Date());
+    }
+
+    public static yearsAgoFromToday(numYears: number): Date {
+        return this.monthsAgoFromSpecifiedDate(12 * numYears, new Date());
     }
 
     public static round(value: number, decimalPlaces: number): number {

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { IndexService } from './core/services/index.service';
-import { Index } from './core/models/Index';
+import { Index } from './core/models';
 import { GeneralMarketService } from './core/services/general-market.service';
 
 @Component({

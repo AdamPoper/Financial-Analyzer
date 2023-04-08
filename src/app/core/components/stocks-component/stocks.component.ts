@@ -5,6 +5,7 @@ import { Quote } from '../../models/quote';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { combineLatest, tap } from 'rxjs';
 import { AppUtil } from '../../util/app-util';
+import { Dividend } from '../../models/dividend';
 
 interface CanvasInterval {
   date: string;
@@ -33,6 +34,7 @@ export class StocksComponent implements OnInit {
   
   public ticker: string = '';
   public priceHistory: Interval[] = [];
+  public dividendHistory: Array<Dividend> = [];
   public quote: Quote | undefined;
   public chartConfigData: ChartConfiguration['data'] | undefined;
   public chartConfigOptions: ChartConfiguration['options'] | undefined;
@@ -50,10 +52,12 @@ export class StocksComponent implements OnInit {
     if (this.ticker !== null && this.ticker !== '') {
       combineLatest([
         this.stocksService.fetchQuoteByTicker(this.ticker),
-        this.stocksService.fetchTickerHistoricalPrices(new Date(), new Date(), this.ticker)
-      ]).pipe(tap(([quote, intervals]) => {
+        this.stocksService.fetchTickerHistoricalPrices(new Date(), new Date(), this.ticker),
+        this.stocksService.fetchDividendDatabyTicker(this.ticker)
+      ]).pipe(tap(([quote, intervals, dividends]) => {
           this.quote = quote;
           this.priceHistory = intervals.reverse();
+          this.dividendHistory = [...dividends];
       })).subscribe(() => {
         this.initChartConfig();
       });
@@ -65,6 +69,14 @@ export class StocksComponent implements OnInit {
     this.initChartConfig();
   }
 
+  public round(n: number): number {
+    return AppUtil.round(n, 2);
+  }
+
+  public dateFormat(date: string): string {
+    return AppUtil.getFormattedDate(new Date(date));
+  }
+
   public get shouldDisplayQuoteInfo(): boolean {
     return this.quote !== undefined && this.priceHistory.length !== 0;
   }
@@ -73,12 +85,25 @@ export class StocksComponent implements OnInit {
     return Object.values(ChartTimePeriods);
   }
 
-  public round(n: number): number {
-    return AppUtil.round(n, 2);
+  public get tickerPaysDividend(): boolean {
+    return this.dividendHistory.length !== 0;
   }
 
-  public dateFormat(date: string): string {
-    return AppUtil.getFormattedDate(new Date(date));
+  public get latestDividendQuote(): number {
+    if (!this.tickerPaysDividend) {
+      return 0;
+    }
+    const latestDivDate = AppUtil.getDateFromFormat(this.dividendHistory[0].date);
+    const oneYearAgo = AppUtil.yearsAgoFromSpecifiedDate(1, latestDivDate);
+    let distributionSchedule = 0;
+    for (const div of this.dividendHistory) {
+      const divDate = AppUtil.getDateFromFormat(div.date);
+      if (divDate.getTime() < oneYearAgo.getTime()) {
+        return AppUtil.round((div.dividend * distributionSchedule) / (this.quote?.price ?? -1) * 100, 2);
+      }
+      distributionSchedule++;
+    }
+    throw new Error("Eternal Dividend Data");
   }
 
   private getStartDateForSelectedOption() {
@@ -100,7 +125,6 @@ export class StocksComponent implements OnInit {
   }
 
   private initChartConfig(): void {
-    // const start = new Date(2023, 1, 27);
     const start = this.getStartDateForSelectedOption();
     const end = new Date();
     const dataSet = this.getPriceHistory(start, end);

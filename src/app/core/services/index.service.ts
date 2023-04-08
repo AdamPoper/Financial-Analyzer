@@ -2,7 +2,7 @@ import { Observable, of } from "rxjs";
 import { HttpClient } from '@angular/common/http';
 import { INDEX_TEST_DATA } from "../test-data/indices-test-data";
 import { Injectable } from "@angular/core";
-import { Index } from "../models/Index";
+import { Index } from "../models";
 import { map } from "rxjs";
 
 @Injectable({providedIn: 'root'})
