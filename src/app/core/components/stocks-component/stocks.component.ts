@@ -33,7 +33,7 @@ const ChartTimePeriods = {
 export class StocksComponent implements OnInit {
   
   public ticker: string = '';
-  public priceHistory: Interval[] = [];
+  public priceHistories = new Map<string, Array<Interval>>();
   public dividendHistory: Array<Dividend> = [];
   public quote: Quote | undefined;
   public chartConfigData: ChartConfiguration['data'] | undefined;
@@ -49,6 +49,7 @@ export class StocksComponent implements OnInit {
   }
 
   public onTickerSearch(): void {
+    this.selectedTimePeriodOption = ChartTimePeriods.OneYear;
     if (this.ticker !== null && this.ticker !== '') {
       const start = AppUtil.yearsAgoFromToday(1);
       const today = new Date();
@@ -57,18 +58,19 @@ export class StocksComponent implements OnInit {
         this.stocksService.fetchTickerHistoricalPrices(start, today, this.ticker),
         this.stocksService.fetchDividendDataByTicker(this.ticker)
       ]).pipe(tap(([quote, intervals, dividends]) => {
+          intervals.reverse();
+          this.priceHistories.set(this.selectedTimePeriodOption, intervals);
           this.quote = quote;
-          this.priceHistory = intervals.reverse();
           this.dividendHistory = [...dividends];
       })).subscribe(() => {
-        this.initChartConfig();
+        this.prepareInitChartConfig();
       });
     }
   }
 
   public onTimePeriodChange(timePeriod: string) {
     this.selectedTimePeriodOption = timePeriod;
-    this.initChartConfig();
+    this.prepareInitChartConfig();
   }
 
   public round(n: number): number {
@@ -80,7 +82,7 @@ export class StocksComponent implements OnInit {
   }
 
   public get shouldDisplayQuoteInfo(): boolean {
-    return this.quote !== undefined && this.priceHistory.length !== 0;
+    return this.quote !== undefined;
   }
 
   public get priceHistoryOptions(): string[] {
@@ -95,15 +97,22 @@ export class StocksComponent implements OnInit {
     if (!this.tickerPaysDividend) {
       return 0;
     }
+
     const latestDividend = this.dividendHistory[0];
+    if (latestDividend.dividend === null) {
+      return 0;
+    }
+
     const latestDivDate = AppUtil.getDateFromFormat(latestDividend.date);
     const oneYearAgo = AppUtil.yearsAgoFromSpecifiedDate(1, latestDivDate);
     let distributionSchedule = 0;
+    // TODO fix incorrect dividend rate bug
     for (const div of this.dividendHistory) {
       const divDate = AppUtil.getDateFromFormat(div.date);
       if (divDate.getTime() < oneYearAgo.getTime()) {
         const price = this.quote?.price;
         if (price !== undefined) {
+          console.log(distributionSchedule);
           return AppUtil.round(latestDividend.dividend * distributionSchedule / price * 100, 2);
         }
         return 0;
@@ -123,18 +132,33 @@ export class StocksComponent implements OnInit {
       case ChartTimePeriods.ThreeMonths: return AppUtil.monthsAgoFromToday(3);
       case ChartTimePeriods.SixMonths: return AppUtil.monthsAgoFromToday(6);
       case ChartTimePeriods.OneYear: return AppUtil.yearsAgoFromToday(1);
-      // case ChartTimePeriods.TwoYears: return AppUtil.yearsAgoFromToday(2);
-      // case ChartTimePeriods.ThreeYears: return AppUtil.yearsAgoFromToday(3);
-      // case ChartTimePeriods.FiveYears: return AppUtil.yearsAgoFromToday(5);
-      // case ChartTimePeriods.TenYears: return AppUtil.yearsAgoFromToday(10);
+      case ChartTimePeriods.TwoYears: return AppUtil.yearsAgoFromToday(2);
+      case ChartTimePeriods.ThreeYears: return AppUtil.yearsAgoFromToday(3);
+      case ChartTimePeriods.FiveYears: return AppUtil.yearsAgoFromToday(5);
+      case ChartTimePeriods.TenYears: return AppUtil.yearsAgoFromToday(10);
       default: throw new Error('Invalid Time Period Option' + this.selectedTimePeriodOption);
     }
   }
 
-  private initChartConfig(): void {
+  private prepareInitChartConfig(): void {
     const start = this.getStartDateForSelectedOption();
     const end = new Date();
-    const dataSet = this.getPriceHistory(start, end);
+
+    if (this.priceHistories.has(this.selectedTimePeriodOption)) {
+      const dataSet = this.getPriceHistory(start, end);
+      this.initChartConfig(dataSet);
+    } else {
+      this.stocksService.fetchTickerHistoricalPrices(start, end, this.ticker)
+        .subscribe((intervals: Array<Interval>) => {
+          intervals.reverse();
+          this.priceHistories.set(this.selectedTimePeriodOption, intervals);
+          const dataSet = this.getPriceHistory(start, end);
+          this.initChartConfig(dataSet);
+        });
+    } 
+  }
+
+  private initChartConfig(dataSet: Array<CanvasInterval>): void {
     this.chartConfigData = {
       datasets: [{
         data: dataSet.map(i => i.price),
@@ -161,10 +185,29 @@ export class StocksComponent implements OnInit {
     if (start.getTime() > end.getTime()) {
       return dataSet;
     }
-    
-    if (this.priceHistory !== undefined && this.priceHistory.length !== 0) {
-      for (const interval of this.priceHistory) {
+
+    const priceHistory = this.priceHistories.get(this.selectedTimePeriodOption);
+
+    let spread: number;
+    switch(this.selectedTimePeriodOption) {
+      case ChartTimePeriods.OneDay: spread = 0; break;
+      case ChartTimePeriods.OneWeek: spread = 1; break;
+      case ChartTimePeriods.OneMonth: spread = 1; break;
+      case ChartTimePeriods.ThreeMonths: spread = 1; break;
+      case ChartTimePeriods.SixMonths: spread = 1; break;
+      case ChartTimePeriods.OneYear: spread = 1; break;
+      case ChartTimePeriods.TwoYears: spread = 2; break;
+      case ChartTimePeriods.ThreeYears: spread = 3; break;
+      case ChartTimePeriods.FiveYears: spread = 7; break;
+      case ChartTimePeriods.TenYears: spread = 7; break;
+      default: throw new Error("Invalid selected time period");
+    }
+
+    if (priceHistory !== undefined && priceHistory.length !== 0) {
+      for (let i = 0; i < priceHistory.length; i += spread) {
+        const interval = priceHistory[i];
         const intervalDate = AppUtil.getDateFromFormat(interval.date);
+
         if (intervalDate >= start) {
           dataSet.push({date: interval.date, price: interval.close});
         }

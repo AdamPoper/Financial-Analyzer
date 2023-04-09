@@ -95,8 +95,11 @@
                 <span>{{ dateFormat(quote.earningsAnnouncement) }}</span>
             </div>
             <div class="quote-details-container">
-                <span>Dividend</span>
-                <span>{{ tickerPaysDividend ? latestDividendQuote + '%' : '-' }}</span>
+                <span>Dividend Rate</span>
+                <span>{{ 
+                    tickerPaysDividend && latestDividendQuote !== 0 ?
+                    latestDividendQuote + '%' : '-' 
+                }}</span>
             </div>
         </div>
     </div>

@@ -28,11 +28,12 @@ export class AppUtil {
     }
 
     public static monthsAgoFromSpecifiedDate(numMonths: number, date: Date): Date {
-        return this.weeksAgoFromSpecifiedDate(4 * numMonths, date);
+        date.setMonth(date.getMonth() - numMonths);
+        return date;
     }
 
     public static yearsAgoFromSpecifiedDate(numYears: number, date: Date): Date {
-        return this.monthsAgoFromSpecifiedDate(12 * numYears, date);
+        return this.weeksAgoFromSpecifiedDate(52 * numYears, date);
     }
 
     public static weeksAgoFromToday(numWeeks: number): Date {
@@ -40,11 +41,11 @@ export class AppUtil {
     }
 
     public static monthsAgoFromToday(numMonths: number): Date {
-        return this.weeksAgoFromSpecifiedDate(4 * numMonths, new Date());
+        return this.monthsAgoFromSpecifiedDate(numMonths, new Date());
     }
 
     public static yearsAgoFromToday(numYears: number): Date {
-        return this.monthsAgoFromSpecifiedDate(12 * numYears, new Date());
+        return this.weeksAgoFromSpecifiedDate(52 * numYears, new Date());
     }
 
     public static round(value: number, decimalPlaces: number): number {

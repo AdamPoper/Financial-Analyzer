@@ -37,6 +37,8 @@ export class StocksService {
         }
         const from = AppUtil.getFormattedDate(start);
         const to = AppUtil.getFormattedDate(end);
+        console.log(from);
+        console.log(to);
         // return of(HISTORICAL_STOCK_PRICE)
         return this.http.get<Historical<Interval>>(`https://financialmodelingprep.com/api/v3/historical-price-full/${ticker}?from=${from}&to=${to}&apikey=6bdfa0e424ca10e8d42f1a07bc67669d`)
             .pipe(map((data: Historical<Interval>) => {

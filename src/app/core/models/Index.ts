@@ -1,5 +1,3 @@
-
-
 export class Index {
     public symbol: string;
     public name: string;
