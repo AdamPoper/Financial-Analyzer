@@ -50,10 +50,12 @@ export class StocksComponent implements OnInit {
 
   public onTickerSearch(): void {
     if (this.ticker !== null && this.ticker !== '') {
+      const start = AppUtil.yearsAgoFromToday(1);
+      const today = new Date();
       combineLatest([
         this.stocksService.fetchQuoteByTicker(this.ticker),
-        this.stocksService.fetchTickerHistoricalPrices(new Date(), new Date(), this.ticker),
-        this.stocksService.fetchDividendDatabyTicker(this.ticker)
+        this.stocksService.fetchTickerHistoricalPrices(start, today, this.ticker),
+        this.stocksService.fetchDividendDataByTicker(this.ticker)
       ]).pipe(tap(([quote, intervals, dividends]) => {
           this.quote = quote;
           this.priceHistory = intervals.reverse();
@@ -93,13 +95,18 @@ export class StocksComponent implements OnInit {
     if (!this.tickerPaysDividend) {
       return 0;
     }
-    const latestDivDate = AppUtil.getDateFromFormat(this.dividendHistory[0].date);
+    const latestDividend = this.dividendHistory[0];
+    const latestDivDate = AppUtil.getDateFromFormat(latestDividend.date);
     const oneYearAgo = AppUtil.yearsAgoFromSpecifiedDate(1, latestDivDate);
     let distributionSchedule = 0;
     for (const div of this.dividendHistory) {
       const divDate = AppUtil.getDateFromFormat(div.date);
       if (divDate.getTime() < oneYearAgo.getTime()) {
-        return AppUtil.round((div.dividend * distributionSchedule) / (this.quote?.price ?? -1) * 100, 2);
+        const price = this.quote?.price;
+        if (price !== undefined) {
+          return AppUtil.round(latestDividend.dividend * distributionSchedule / price * 100, 2);
+        }
+        return 0;
       }
       distributionSchedule++;
     }

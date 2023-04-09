@@ -8,6 +8,7 @@ import { Interval } from "../models/interval";
 import { DIVIDEND_TEST_DATA } from "../test-data/aapl-dividend-test-data";
 import { Dividend } from "../models/dividend";
 import { Historical } from "../models/historical";
+import { AppUtil } from "../util/app-util";
 
 @Injectable({providedIn: 'root'})
 export class StocksService {
@@ -17,7 +18,11 @@ export class StocksService {
     }
 
     public fetchQuoteByTicker(ticker: string): Observable<Quote | undefined> {
-        return of(STOCK_QUOTE_TEST_DATA)
+        if (!ticker || ticker === '') {
+            throw new Error('Ticker is empty');
+        }
+        // return of(STOCK_QUOTE_TEST_DATA)
+        return this.http.get<Quote[]>(`https://financialmodelingprep.com/api/v3/quote/${ticker}?apikey=6bdfa0e424ca10e8d42f1a07bc67669d`)
             .pipe(map((data: Quote[]) => {
                 if (data !== undefined && data !== null && data.length !== 0) {
                     return new Quote(data[0]);
@@ -27,14 +32,21 @@ export class StocksService {
     }
 
     public fetchTickerHistoricalPrices(start: Date, end: Date, ticker: string): Observable<Interval[]> {
-        return of(HISTORICAL_STOCK_PRICE)
+        if (!ticker || ticker === '') {
+            throw new Error('Ticker is empty');
+        }
+        const from = AppUtil.getFormattedDate(start);
+        const to = AppUtil.getFormattedDate(end);
+        // return of(HISTORICAL_STOCK_PRICE)
+        return this.http.get<Historical<Interval>>(`https://financialmodelingprep.com/api/v3/historical-price-full/${ticker}?from=${from}&to=${to}&apikey=6bdfa0e424ca10e8d42f1a07bc67669d`)
             .pipe(map((data: Historical<Interval>) => {
                return this.mapHistorical<Interval>(data, ticker);
             }));
     }
 
-    public fetchDividendDatabyTicker(ticker: string) {
-        return of(DIVIDEND_TEST_DATA)
+    public fetchDividendDataByTicker(ticker: string) {
+        return this.http.get<Historical<Dividend>>(`https://financialmodelingprep.com/api/v3/historical-price-full/stock_dividend/${ticker}?apikey=6bdfa0e424ca10e8d42f1a07bc67669d`)
+        // return of(DIVIDEND_TEST_DATA)
             .pipe(map((data: Historical<Dividend>) => {
                 return this.mapHistorical<Dividend>(data, ticker);
             }));
