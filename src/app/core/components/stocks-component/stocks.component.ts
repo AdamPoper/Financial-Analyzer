@@ -105,6 +105,8 @@ export class StocksComponent implements OnInit {
 
     const latestDivDate = AppUtil.getDateFromFormat(latestDividend.date);
     const oneYearAgo = AppUtil.yearsAgoFromSpecifiedDate(1, latestDivDate);
+    const today = new Date();
+    const todayFormatted = AppUtil.getFormattedDate(today);
     let distributionSchedule = 0;
     // TODO fix incorrect dividend rate bug
     for (const div of this.dividendHistory) {
@@ -112,6 +114,9 @@ export class StocksComponent implements OnInit {
       if (divDate.getTime() < oneYearAgo.getTime()) {
         const price = this.quote?.price;
         if (price !== undefined) {
+          if (latestDivDate > today || todayFormatted === latestDividend.date) {
+            distributionSchedule--;
+          }
           console.log(distributionSchedule);
           return AppUtil.round(latestDividend.dividend * distributionSchedule / price * 100, 2);
         }

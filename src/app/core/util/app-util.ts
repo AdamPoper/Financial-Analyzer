@@ -23,13 +23,15 @@ export class AppUtil {
     }
 
     public static weeksAgoFromSpecifiedDate(numWeeks: number, date: Date): Date {
-        date.setDate(date.getDate() - (numWeeks * 7));
-        return date;
+        const newDate = new Date();
+        newDate.setDate(date.getDate() - (numWeeks * 7));
+        return newDate;
     }
 
     public static monthsAgoFromSpecifiedDate(numMonths: number, date: Date): Date {
-        date.setMonth(date.getMonth() - numMonths);
-        return date;
+        const newDate = new Date();
+        newDate.setMonth(date.getMonth() - numMonths);
+        return newDate;
     }
 
     public static yearsAgoFromSpecifiedDate(numYears: number, date: Date): Date {
