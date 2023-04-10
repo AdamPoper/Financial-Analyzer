@@ -109,7 +109,7 @@ export class StocksComponent implements OnInit {
     const today = new Date();
     const todayFormatted = AppUtil.getFormattedDate(today);
     let distributionSchedule = 0;
-    // TODO fix incorrect dividend rate bug
+
     for (const div of this.dividendHistory) {
       const divDate = AppUtil.getDateFromFormat(div.date);
       if (divDate.getTime() < oneYearAgo.getTime()) {
