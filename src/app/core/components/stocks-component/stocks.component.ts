@@ -49,6 +49,7 @@ export class StocksComponent implements OnInit {
   }
 
   public onTickerSearch(): void {
+    this.priceHistories.clear();
     this.selectedTimePeriodOption = ChartTimePeriods.OneYear;
     if (this.ticker !== null && this.ticker !== '') {
       const start = AppUtil.yearsAgoFromToday(1);
