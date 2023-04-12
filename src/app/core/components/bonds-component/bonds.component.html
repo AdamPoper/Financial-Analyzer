@@ -18,20 +18,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr 
-                        *ngFor="let bond of bonds"
-                        [ngStyle]="{
-                            'color': bond.yieldChange < 0 ? '#eb4b4b' : '#3dd153'
-                        }"
-                    >
+                    <tr *ngFor="let bond of bonds">
                         <td>
                             {{ bond.title }}
                         </td>
                         <td>
                             {{ bond.couponRate + '%' }}
                         </td>
-                        <td>
-                            {{ roundYield(bond.yieldChange) + '%' }}
+                        <td [ngStyle]="getYieldChangeStyle(bond)">
+                            {{ (bond.yieldChange > 0 ? '+' : '') + roundYield(bond.yieldChange) + '%' }}
                         </td>
                     </tr>
                 </tbody>

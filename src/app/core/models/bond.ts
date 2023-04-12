@@ -14,6 +14,11 @@ export interface BondInterface {
     "year30" : number;
 }
 
+export interface SingleTreasuryYield {
+    date: string;
+    yield: number;
+}
+
 export const BondNames = {
     "month1": "US 1 Month",
     "month2": "US 2 Month",
