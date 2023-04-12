@@ -3,7 +3,6 @@ import { BondsService } from '../../services/bonds.service';
 import { Bond, BondNames } from '../../models/bond';
 import { AppUtil } from '../../util/app-util';
 import { ChartConfiguration, ChartEvent } from 'chart.js';
-import { Chart } from 'chart.js/dist';
 
 @Component({
   selector: 'app-bonds-component',
@@ -72,16 +71,5 @@ export class BondsComponent implements OnInit {
         }
       } 
     };
-  }
-
-  public onColumnClickHandle(event: ChartEvent, chartInstance: Chart) {
-    console.log(chartInstance);
-    const activeElement = chartInstance.getActiveElements();
-    console.log(activeElement);
-    if (activeElement) {
-      // const value = chartInstance.data.datasets[activeElement._datasetIndex].data[activeElement._index];
-      // const label = chartInstance.data.labels[activeElement._index];
-      // console.log(`Clicked on column ${label} with value ${value}`);
-    }
   }
 }
