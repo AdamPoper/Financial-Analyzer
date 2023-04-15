@@ -15,6 +15,7 @@ export class StocksService {
     }
 
     public fetchQuoteByTicker(ticker: string): Observable<Quote | undefined> {
+        ticker = ticker.toUpperCase();
         if (!ticker || ticker === '') {
             throw new Error('Ticker is empty');
         }
@@ -28,6 +29,7 @@ export class StocksService {
     }
 
     public fetchTickerHistoricalPrices(start: Date, end: Date, ticker: string): Observable<Interval[]> {
+        ticker = ticker.toUpperCase();
         if (!ticker || ticker === '') {
             throw new Error('Ticker is empty');
         }
@@ -40,6 +42,7 @@ export class StocksService {
     }
 
     public fetchDividendDataByTicker(ticker: string) {
+        ticker = ticker.toUpperCase();
         return this.http.get<Historical<Dividend>>(`https://financialmodelingprep.com/api/v3/historical-price-full/stock_dividend/${ticker}?apikey=6bdfa0e424ca10e8d42f1a07bc67669d`)
             .pipe(map((data: Historical<Dividend>) => {
                 return this.mapHistorical<Dividend>(data, ticker);

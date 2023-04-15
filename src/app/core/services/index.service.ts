@@ -12,6 +12,7 @@ export class IndexService {
     }
 
     public fetchAllMajorIndices(): Observable<Index[]> {
-        return of(INDEX_TEST_DATA).pipe(map((indices: Index[]) => indices.map(index => new Index(index))));
+        return this.http.get<Index[]>('https://financialmodelingprep.com/api/v3/quotes/index?apikey=6bdfa0e424ca10e8d42f1a07bc67669d')
+            .pipe(map((indices: Index[]) => indices.map(index => new Index(index))));
     }
 }

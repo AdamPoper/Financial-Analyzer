@@ -7,7 +7,7 @@
     <div class="indices">
       <div 
         class="index-status" 
-        *ngFor="let index of indices"
+        *ngFor="let index of mainAmericanIndices"
         [ngStyle]="{
           'border-color': index.changesPercentage < 0 ? '#eb4b4b' : '#3dd153'
         }"
@@ -16,7 +16,7 @@
           [ngStyle]="{'color': index.changesPercentage < 0 ? '#eb4b4b' : '#3dd153'}"
         >
           {{ index.name + ' ' + 
-            (index.changesPercentage > 0 ? '+' : '') + index.changesPercentage + '%' 
+            (index.changesPercentage > 0 ? '+' : '') + round(index.changesPercentage) + '%' 
           }}  
         </span>
       </div>

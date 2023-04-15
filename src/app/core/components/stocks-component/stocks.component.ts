@@ -59,13 +59,11 @@ export class StocksComponent implements OnInit {
         this.stocksService.fetchTickerHistoricalPrices(start, today, this.ticker),
         this.stocksService.fetchDividendDataByTicker(this.ticker)
       ]).pipe(tap(([quote, intervals, dividends]) => {
-          intervals.reverse();
-          this.priceHistories.set(this.selectedTimePeriodOption, intervals);
-          this.quote = quote;
-          this.dividendHistory = [...dividends];
-      })).subscribe(() => {
-        this.prepareInitChartConfig();
-      });
+        intervals.reverse();
+        this.priceHistories.set(this.selectedTimePeriodOption, intervals);
+        this.quote = quote;
+        this.dividendHistory = [...dividends];
+      })).subscribe(() => this.prepareInitChartConfig());
     }
   }
 
@@ -118,7 +116,6 @@ export class StocksComponent implements OnInit {
           if (latestDivDate > today || todayFormatted === latestDividend.date) {
             distributionSchedule--;
           }
-          console.log(distributionSchedule);
           return AppUtil.round(latestDividend.dividend * distributionSchedule / price * 100, 2);
         }
         return 0;
