@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { BondsService } from '../../services/bonds.service';
 import { Bond, BondNames } from '../../models/bond';
 import { AppUtil } from '../../util/app-util';
-import { ChartConfiguration, ChartEvent } from 'chart.js';
+import { ChartConfiguration } from 'chart.js';
 
 @Component({
   selector: 'app-bonds-component',
@@ -59,17 +59,6 @@ export class BondsComponent implements OnInit {
           beginAtZero: true
         }
       },
-      onClick: (event, activeElements) => {
-        if (activeElements.length > 0) {
-          const element = activeElements[0];
-          const bondKey = Array.from(Object.keys(BondNames))[element.index];
-          this.bondService.fetchUSTreasuryHistory(
-            bondKey,
-            AppUtil.monthsAgoFromToday(3),
-            new Date(),
-          ).subscribe(yields => console.log(yields));
-        }
-      } 
     };
   }
 }

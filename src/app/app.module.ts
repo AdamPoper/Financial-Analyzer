@@ -9,13 +9,15 @@ import { BondsComponent } from './core/components/bonds-component/bonds.componen
 import { CommoditiesComponent } from './core/components/commodities-component/commodities.component';
 import { FormsModule } from '@angular/forms';
 import { NgChartsModule } from 'ng2-charts';
+import { ModalComponent } from './core/components/modal/modal.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     StocksComponent,
     BondsComponent,
-    CommoditiesComponent
+    CommoditiesComponent,
+    ModalComponent
   ],
   imports: [
     BrowserModule,
