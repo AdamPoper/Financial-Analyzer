@@ -6,6 +6,7 @@ import { Interval } from "../models/interval";
 import { Dividend } from "../models/dividend";
 import { Historical } from "../models/historical";
 import { AppUtil } from "../util/app-util";
+import { CashFlowStatement } from "../models/cashflow";
 
 @Injectable({providedIn: 'root'})
 export class StocksService {
@@ -49,10 +50,21 @@ export class StocksService {
             }));
     }
 
+    public fetchCashFlowStatements(ticker: string, period: string, count: number) {
+        ticker = ticker.toUpperCase();
+        return this.http.get<CashFlowStatement[]>(`https://financialmodelingprep.com/api/v3/cash-flow-statement/${ticker}?period=${period}&limit=${count}&apikey=6bdfa0e424ca10e8d42f1a07bc67669d`)
+            .pipe(map((cashFlowStatements: CashFlowStatement[]) => {
+                if (cashFlowStatements && cashFlowStatements.length !== 0) {
+                    return cashFlowStatements;
+                }
+                return new Array<CashFlowStatement>();
+            }));
+    }
+
     private mapHistorical<T>(data: Historical<T>, ticker: string): Array<T> {
         if (data.symbol === ticker) {
             const dataSet = [...data.historical];
-            if (dataSet !== undefined && dataSet !== null && dataSet.length !== 0) {
+            if (dataSet && dataSet.length !== 0) {
                 return dataSet;
             }
         }

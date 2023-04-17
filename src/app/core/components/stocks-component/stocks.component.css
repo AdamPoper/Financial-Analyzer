@@ -3,6 +3,7 @@
     flex-direction: column;
     width: 100%;
     margin-top: 5vh;
+    background-color: #2f313d;
 }
 
 .search-container {
@@ -96,7 +97,7 @@ button[type=submit]:hover {
     background-color: #565a70;
 }
 
-.dividing-line {
+.dividing-line-vertical {
     height: 40vh;
     width: 2px;
     background-color: #ccc;
@@ -119,4 +120,46 @@ button[type=submit]:hover {
 .quote-details-container {
     display: flex;
     justify-content: space-between;
+}
+
+.statement-cat-charts {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.statement-cat {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.chart-container {
+    width: 20%;
+    margin: 1%;
+    margin-left: 50px;
+    margin-right: 50px;
+    text-align: center;
+    color: #ccc;
+}
+
+.dividing-line-horizontal {
+    height: 2px;
+    width: 90%;
+    margin-bottom: 2%;
+    margin-top: 1%;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #ccc;
+}
+
+.statement-cat-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    margin-top: 3%;
+    color: #ccc;
 }

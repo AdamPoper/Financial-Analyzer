@@ -52,7 +52,7 @@
             >
             </canvas>
         </div>
-        <div class="dividing-line"></div>
+        <div class="dividing-line-vertical"></div>
         <div *ngIf="quote" class="quote-details">
             <div class="quote-details-container">
                 <span>Symbol</span>
@@ -91,7 +91,7 @@
                 <span>{{ quote.pe }}</span>
             </div>
             <div class="quote-details-container">
-                <span>Earnings Annoucement</span>
+                <span>Earnings Announcement</span>
                 <span>{{ dateFormat(quote.earningsAnnouncement) }}</span>
             </div>
             <div class="quote-details-container">
@@ -101,6 +101,30 @@
                     latestDividendQuote + '%' : '-' 
                 }}</span>
             </div>
+        </div>
+    </div>
+    <div *ngIf="shouldDisplayQuoteInfo" class="statment-cat-charts">
+        <div class="statement-cat-container">
+            <h1>Cash Flow Statements</h1>
+            <div class="dividing-line-horizontal"></div>
+            <div class="statement-cat">
+                <div class="chart-container" *ngFor="let cat of cashFlowCategories">
+                    <label>{{ getCashFlowCatName(cat) }}</label>
+                    <canvas
+                        baseChart
+                        [type]="'bar'"
+                        [data]="getChartConfigForCashFlowCat(cat)"
+                        [options]="chartConfigOptions"
+                    >
+                    </canvas>
+                </div>
+            </div>
+        </div>
+        <div class="statement-cat">
+            
+        </div>
+        <div class="statement-cat">
+            
         </div>
     </div>
 </div>

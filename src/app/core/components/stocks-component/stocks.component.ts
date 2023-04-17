@@ -6,6 +6,8 @@ import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { combineLatest, tap } from 'rxjs';
 import { AppUtil } from '../../util/app-util';
 import { Dividend } from '../../models/dividend';
+import { CashFlowStatement } from '../../models/cashflow';
+import { Chart } from 'chart.js/dist';
 
 interface CanvasInterval {
   date: string;
@@ -25,6 +27,28 @@ const ChartTimePeriods = {
   TenYears: '10Y'
 };
 
+const Period = {
+  Annual: 'annual',
+  Quarterly: 'quarterly'
+};
+
+const FinancialStatementCatagories = {
+  CashFlow: 'Cash Flow Statements',
+  BalanceSheet: 'Balance Sheet Statements',
+  Income: 'Income Statements'
+};
+
+const CashFlowCategoryNames = {
+  netIncome: 'Net Income',
+  freeCashFlow: 'Free Cash Flow',
+  depreciationAndAmortization: 'Depreciation and Amortization',
+  stockBasedCompensation: 'Stock Based Compensation',
+  commonStockRepurchased: 'Common Stock Repurchased',
+  cashAtEndOfPeriod: 'Cash at End of Period',
+  operatingCashFlow: 'Operating Cash Flow',
+  capitalExpenditure: 'Capital Expenditure',
+};
+
 @Component({
   selector: 'app-stocks-component',
   templateUrl: './stocks.component.html',
@@ -32,16 +56,22 @@ const ChartTimePeriods = {
 })
 export class StocksComponent implements OnInit {
   
-  public ticker: string = '';
-  public priceHistories = new Map<string, Array<Interval>>();
-  public dividendHistory: Array<Dividend> = [];
+  public ticker: string;
+  public priceHistories: Map<string, Array<Interval>>;
+  public dividendHistory: Array<Dividend>;
   public quote: Quote | undefined;
   public chartConfigData: ChartConfiguration['data'] | undefined;
   public chartConfigOptions: ChartConfiguration['options'] | undefined;
   public selectedTimePeriodOption: string = ChartTimePeriods.OneYear;
+  public cashFlowStatements: Array<CashFlowStatement>;
+  public cashFlowChartDataConfigs: Map<string, ChartConfiguration['data']>;
 
   constructor(private stocksService: StocksService) {
-
+    this.ticker = '';
+    this.priceHistories = new Map<string, Array<Interval>>();
+    this.dividendHistory = new Array<Dividend>();
+    this.cashFlowStatements = new Array<CashFlowStatement>();
+    this.cashFlowChartDataConfigs = new Map<string, ChartConfiguration['data']>();
   }
 
   ngOnInit(): void {
@@ -50,19 +80,26 @@ export class StocksComponent implements OnInit {
 
   public onTickerSearch(): void {
     this.priceHistories.clear();
+    this.dividendHistory = new Array<Dividend>();
+    this.cashFlowStatements = new Array<CashFlowStatement>();
     this.selectedTimePeriodOption = ChartTimePeriods.OneYear;
-    if (this.ticker !== null && this.ticker !== '') {
+    if (this.ticker && this.ticker !== '') {
       const start = AppUtil.yearsAgoFromToday(1);
       const today = new Date();
       combineLatest([
         this.stocksService.fetchQuoteByTicker(this.ticker),
         this.stocksService.fetchTickerHistoricalPrices(start, today, this.ticker),
-        this.stocksService.fetchDividendDataByTicker(this.ticker)
-      ]).pipe(tap(([quote, intervals, dividends]) => {
+        this.stocksService.fetchDividendDataByTicker(this.ticker),
+        this.stocksService.fetchCashFlowStatements(this.ticker, Period.Annual, 10)
+      ]).pipe(tap(([quote, intervals, dividends, cashFlowStatements]) => {
         intervals.reverse();
         this.priceHistories.set(this.selectedTimePeriodOption, intervals);
         this.quote = quote;
-        this.dividendHistory = [...dividends];
+        this.dividendHistory.push(...dividends);
+        this.cashFlowStatements.push(...cashFlowStatements);
+        this.cashFlowCategories.forEach(cat => {
+          this.cashFlowChartDataConfigs.set(cat, this.createChartConfigForCashFlowCat(cat));
+        });
       })).subscribe(() => this.prepareInitChartConfig());
     }
   }
@@ -77,7 +114,7 @@ export class StocksComponent implements OnInit {
   }
 
   public dateFormat(date: string): string {
-    return AppUtil.getFormattedDate(new Date(date));
+    return date ? AppUtil.getFormattedDate(new Date(date)) : '-';
   }
 
   public get shouldDisplayQuoteInfo(): boolean {
@@ -90,6 +127,10 @@ export class StocksComponent implements OnInit {
 
   public get tickerPaysDividend(): boolean {
     return this.dividendHistory.length !== 0;
+  }
+
+  public get cashFlowCategories(): string[] {
+    return Object.keys(CashFlowCategoryNames);
   }
 
   public get latestDividendQuote(): number {
@@ -125,6 +166,53 @@ export class StocksComponent implements OnInit {
     throw new Error("Eternal Dividend Data");
   }
 
+  public getCashFlowCatName(cat: string) {
+    return new Map<string, string>(Object.entries(CashFlowCategoryNames)).get(cat);
+  }
+
+  public getChartConfigForCashFlowCat(cat: string) {
+    return this.cashFlowChartDataConfigs.get(cat);
+  }
+
+  private createChartConfigForCashFlowCat(cat: string): ChartConfiguration['data'] {
+    if (this.cashFlowCategories.length !== 0 && cat in CashFlowCategoryNames) {
+      return {
+        datasets: [{
+          data: this.cashFlowStatements.map(cfs => cfs[cat]).reverse(),
+          fill: false,
+          borderColor: '#3485d1',
+          tension: 0,
+          label: undefined,
+          pointRadius: 0
+        }],
+        labels: this.cashFlowStatements.map(cfs => cfs.date).reverse()
+      } as ChartConfiguration['data'];
+    }
+    return {} as ChartConfiguration['data'];
+  }
+
+  public getChartConfigOptionsForCashFlowCat(cat: string): ChartConfiguration['options'] {
+    if (this.cashFlowCategories.length !== 0 && cat in CashFlowCategoryNames) {
+      return {
+        plugins: {
+          legend: {
+            title: {
+              text: 'Title',
+              color: '#3485d1',
+              display: true,
+              font: {
+                size: 14
+              },
+              padding: 0
+            },
+            display: true
+          }
+        }
+      }
+    }
+    return {} as ChartConfiguration['options'];
+  }
+
   private getStartDateForSelectedOption() {
     const today = new Date();
     switch (this.selectedTimePeriodOption) {
@@ -139,7 +227,7 @@ export class StocksComponent implements OnInit {
       case ChartTimePeriods.ThreeYears: return AppUtil.yearsAgoFromToday(3);
       case ChartTimePeriods.FiveYears: return AppUtil.yearsAgoFromToday(5);
       case ChartTimePeriods.TenYears: return AppUtil.yearsAgoFromToday(10);
-      default: throw new Error('Invalid Time Period Option' + this.selectedTimePeriodOption);
+      default: throw new Error('Invalid Time Period Option ' + this.selectedTimePeriodOption);
     }
   }
 
