@@ -6,7 +6,7 @@ import { Interval } from "../models/interval";
 import { Dividend } from "../models/dividend";
 import { Historical } from "../models/historical";
 import { AppUtil } from "../util/app-util";
-import { CashFlowStatement } from "../models/cashflow";
+import { GeneralFinancialStatement } from "../models/financial-statement";
 
 @Injectable({providedIn: 'root'})
 export class StocksService {
@@ -50,14 +50,33 @@ export class StocksService {
             }));
     }
 
-    public fetchCashFlowStatements(ticker: string, period: string, count: number) {
+    public fetchCashFlowStatements(
+        ticker: string,
+        period: string,
+        count: number
+    ): Observable<Array<GeneralFinancialStatement>> {
         ticker = ticker.toUpperCase();
-        return this.http.get<CashFlowStatement[]>(`https://financialmodelingprep.com/api/v3/cash-flow-statement/${ticker}?period=${period}&limit=${count}&apikey=6bdfa0e424ca10e8d42f1a07bc67669d`)
-            .pipe(map((cashFlowStatements: CashFlowStatement[]) => {
+        return this.http.get<GeneralFinancialStatement[]>(`https://financialmodelingprep.com/api/v3/cash-flow-statement/${ticker}?period=${period}&limit=${count}&apikey=6bdfa0e424ca10e8d42f1a07bc67669d`)
+            .pipe(map((cashFlowStatements: GeneralFinancialStatement[]) => {
                 if (cashFlowStatements && cashFlowStatements.length !== 0) {
                     return cashFlowStatements;
                 }
-                return new Array<CashFlowStatement>();
+                return new Array<GeneralFinancialStatement>();
+            }));
+    }
+
+    public fetchIncomeStatements(
+        ticker: string, 
+        period: string, 
+        count: number
+    ): Observable<Array<GeneralFinancialStatement>> {
+        ticker = ticker.toUpperCase();
+        return this.http.get<GeneralFinancialStatement[]>(`https://financialmodelingprep.com/api/v3/income-statement/${ticker}?limit=${count}&period=${period}&apikey=6bdfa0e424ca10e8d42f1a07bc67669d`)
+            .pipe(map((incomeStatements: GeneralFinancialStatement[]) => {
+                if (incomeStatements && incomeStatements.length !== 0) {
+                    return incomeStatements;
+                }
+                return new Array<GeneralFinancialStatement>();
             }));
     }
 

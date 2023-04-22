@@ -108,8 +108,8 @@
             <h1>Cash Flow Statements</h1>
             <div class="dividing-line-horizontal"></div>
             <div class="statement-cat">
-                <div class="chart-container" *ngFor="let cat of cashFlowCategories">
-                    <label>{{ getCashFlowCatName(cat) }}</label>
+                <div class="chart-container" *ngFor="let cat of cashFlowCategoryKeys">
+                    <label>{{ getCategoryValueByKey(cat, cashFlowCategoryObj) }}</label>
                     <canvas
                         baseChart
                         [type]="'bar'"
@@ -117,11 +117,24 @@
                         [options]="chartConfigOptions"
                     >
                     </canvas>
-                </div>
+                </div>  
             </div>
         </div>
-        <div class="statement-cat">
-            
+        <div class="statement-cat-container">
+            <h1>Income Statements</h1>
+            <div class="dividing-line-horizontal"></div>
+            <div class="statement-cat">
+                <div class="chart-container" *ngFor="let cat of incomeStatementCategoryKeys">
+                    <label>{{ getCategoryValueByKey(cat, incomeCategoryObj) }}</label>
+                    <canvas
+                        baseChart
+                        [type]="'bar'"
+                        [data]="getChartConfigForIncomeCat(cat)"
+                        [options]="chartConfigOptions"
+                    >
+                    </canvas>
+                </div>
+            </div>
         </div>
         <div class="statement-cat">
             
