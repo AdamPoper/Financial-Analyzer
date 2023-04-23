@@ -60,6 +60,23 @@ const incomeTermsOfInterest = {
     eps: 'Earnings per Share'
 };
 
+const balanceSheetTermsOfInterest = {
+    cashAndCashEquivalents: 'Cash and Cash Equivalents',
+    shortTermInvestments: 'Short Term Investments',
+    cashAndShortTermInvestments: 'Cash and Short Term Investments',
+    otherCurrentAssets: 'Other Current Assets',
+    totalCurrentAssets: 'Total Current Assets',
+    propertyPlantEquipmentNet: 'Property Plant Equipment Net',
+    longTermInvestments: 'Long Term Investments',
+    totalAssets: 'Total Assets',
+    shortTermDebt: 'Short Term Debt',
+    totalLiabilities: 'Total Liabilities',
+    totalStockHolderEquity: 'Total Stock Holder Equity',
+    totalInvestments: 'Total Investments',
+    totalDebt: 'Total Debt',
+    netDebt: 'Net Debt',
+}
+
 @Component({
     selector: 'app-stocks-component',
     templateUrl: './stocks.component.html',
@@ -78,6 +95,8 @@ export class StocksComponent implements OnInit {
     public cashFlowChartDataConfigs: Map<string, ChartConfiguration['data']>;
     public incomeStatements: Array<GeneralFinancialStatement>;
     public incomeChartDataConfigs: Map<string, ChartConfiguration['data']>;
+    public balanceSheetStatements: Array<GeneralFinancialStatement>;
+    public balanceSheetChartConfigs: Map<string, ChartConfiguration['data']>;
 
     constructor(private stocksService: StocksService) {
         this.ticker = '';
@@ -87,6 +106,8 @@ export class StocksComponent implements OnInit {
         this.cashFlowChartDataConfigs = new Map<string, ChartConfiguration['data']>();
         this.incomeStatements = new Array<GeneralFinancialStatement>();
         this.incomeChartDataConfigs = new Map<string, ChartConfiguration['data']>();
+        this.balanceSheetStatements = new Array<GeneralFinancialStatement>();
+        this.balanceSheetChartConfigs = new Map<string, ChartConfiguration['data']>();
     }
 
     ngOnInit(): void {
@@ -98,6 +119,7 @@ export class StocksComponent implements OnInit {
         this.dividendHistory = new Array<Dividend>();
         this.cashFlowStatements = new Array<GeneralFinancialStatement>();
         this.incomeStatements = new Array<GeneralFinancialStatement>();
+        this.balanceSheetStatements = new Array<GeneralFinancialStatement>();
         this.selectedTimePeriodOption = ChartTimePeriods.OneYear;
         if (this.ticker && this.ticker !== '') {
             const start = AppUtil.yearsAgoFromToday(1);
@@ -107,25 +129,34 @@ export class StocksComponent implements OnInit {
                 this.stocksService.fetchTickerHistoricalPrices(start, today, this.ticker),
                 this.stocksService.fetchDividendDataByTicker(this.ticker),
                 this.stocksService.fetchCashFlowStatements(this.ticker, Period.Annual, 10),
-                this.stocksService.fetchIncomeStatements(this.ticker, Period.Annual, 10)
-            ]).pipe(tap(([quote, intervals, dividends, cashFlowStatements, incomeStatements]) => {
+                this.stocksService.fetchIncomeStatements(this.ticker, Period.Annual, 10),
+                this.stocksService.fetchBalanceSheetStatements(this.ticker, Period.Annual, 10)
+            ]).pipe(tap(([quote, intervals, dividends, cashFlowStatements, incomeStatements, balanceSheetStatements]) => {
                 intervals.reverse();
                 this.priceHistories.set(this.selectedTimePeriodOption, intervals);
                 this.quote = quote;
                 this.dividendHistory.push(...dividends);
                 this.cashFlowStatements.push(...cashFlowStatements);
-                this.cashFlowCategoryKeys.forEach(cat => {
+                this.cashFlowStatementKeys.forEach(cat => {
                     this.cashFlowChartDataConfigs.set(cat, 
                         this.createChartConfigForFinancialStatementCat(
-                            cat, cashFlowTermsOfInterest, this.cashFlowCategoryKeys, this.cashFlowStatements
+                            cat, cashFlowTermsOfInterest, this.cashFlowStatementKeys, this.cashFlowStatements
                         )
                     );
                 });
                 this.incomeStatements.push(...incomeStatements);
-                this.incomeStatementCategoryKeys.forEach(cat => {
+                this.incomeStatementKeys.forEach(cat => {
                     this.incomeChartDataConfigs.set(cat, 
                         this.createChartConfigForFinancialStatementCat(
-                            cat, incomeTermsOfInterest, this.incomeStatementCategoryKeys, this.incomeStatements
+                            cat, incomeTermsOfInterest, this.incomeStatementKeys, this.incomeStatements
+                        )
+                    );
+                });
+                this.balanceSheetStatements.push(...balanceSheetStatements);
+                this.balanceSheetStatementKeys.forEach(cat => {
+                    this.balanceSheetChartConfigs.set(cat,
+                        this.createChartConfigForFinancialStatementCat(
+                            cat, balanceSheetTermsOfInterest, this.balanceSheetStatementKeys, this.balanceSheetStatements
                         )
                     );
                 })
@@ -158,12 +189,16 @@ export class StocksComponent implements OnInit {
         return this.dividendHistory.length !== 0;
     }
 
-    public get cashFlowCategoryKeys(): string[] {
+    public get cashFlowStatementKeys(): string[] {
         return Object.keys(cashFlowTermsOfInterest).filter(key => !this.isDataSetEmpty(key, this.cashFlowStatements));
     }
 
-    public get incomeStatementCategoryKeys(): string[] {
+    public get incomeStatementKeys(): string[] {
         return Object.keys(incomeTermsOfInterest).filter(key => !this.isDataSetEmpty(key, this.incomeStatements));
+    }
+
+    public get balanceSheetStatementKeys(): string[] {
+        return Object.keys(balanceSheetTermsOfInterest).filter(key => !this.isDataSetEmpty(key, this.balanceSheetStatements));
     }
 
     public get cashFlowCategoryObj(): object {
@@ -172,6 +207,10 @@ export class StocksComponent implements OnInit {
 
     public get incomeCategoryObj(): object {
         return incomeTermsOfInterest;
+    }
+
+    public get balanceSheetCategoryObj(): object {
+        return balanceSheetTermsOfInterest;
     }
 
     public get latestDividendQuote(): number {
@@ -211,12 +250,19 @@ export class StocksComponent implements OnInit {
         return new Map<string, string>(Object.entries(obj)).get(cat);
     }
 
-    public getChartConfigForCashFlowCat(cat: string) {
-        return this.cashFlowChartDataConfigs.get(cat);
+    public getChartConfigForCashFlowCat(cat: string): ChartConfiguration['data'] {
+        const config = this.cashFlowChartDataConfigs.get(cat);
+        return config ?? {} as ChartConfiguration['data'];
     }
 
-    public getChartConfigForIncomeCat(cat: string) {
-        return this.incomeChartDataConfigs.get(cat);
+    public getChartConfigForIncomeCat(cat: string): ChartConfiguration['data'] {
+        const config = this.incomeChartDataConfigs.get(cat);
+        return config ?? {} as ChartConfiguration['data'];
+    }
+
+    public getChartConfigForBalanceSheetCat(cat: string): ChartConfiguration['data'] {
+        const config = this.balanceSheetChartConfigs.get(cat);
+        return config ?? {} as ChartConfiguration['data'];
     }
 
     public isDataSetEmpty(cat: string, financialStatements: Array<GeneralFinancialStatement>): boolean {

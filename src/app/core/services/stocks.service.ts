@@ -7,6 +7,7 @@ import { Dividend } from "../models/dividend";
 import { Historical } from "../models/historical";
 import { AppUtil } from "../util/app-util";
 import { GeneralFinancialStatement } from "../models/financial-statement";
+import { UrlHandlingStrategy } from "@angular/router";
 
 @Injectable({providedIn: 'root'})
 export class StocksService {
@@ -56,13 +57,9 @@ export class StocksService {
         count: number
     ): Observable<Array<GeneralFinancialStatement>> {
         ticker = ticker.toUpperCase();
-        return this.http.get<GeneralFinancialStatement[]>(`https://financialmodelingprep.com/api/v3/cash-flow-statement/${ticker}?period=${period}&limit=${count}&apikey=6bdfa0e424ca10e8d42f1a07bc67669d`)
-            .pipe(map((cashFlowStatements: GeneralFinancialStatement[]) => {
-                if (cashFlowStatements && cashFlowStatements.length !== 0) {
-                    return cashFlowStatements;
-                }
-                return new Array<GeneralFinancialStatement>();
-            }));
+        return this.fetchGeneralizedFinancialStatement(
+            `https://financialmodelingprep.com/api/v3/cash-flow-statement/${ticker}?period=${period}&limit=${count}&apikey=6bdfa0e424ca10e8d42f1a07bc67669d`
+        );
     }
 
     public fetchIncomeStatements(
@@ -71,10 +68,26 @@ export class StocksService {
         count: number
     ): Observable<Array<GeneralFinancialStatement>> {
         ticker = ticker.toUpperCase();
-        return this.http.get<GeneralFinancialStatement[]>(`https://financialmodelingprep.com/api/v3/income-statement/${ticker}?limit=${count}&period=${period}&apikey=6bdfa0e424ca10e8d42f1a07bc67669d`)
-            .pipe(map((incomeStatements: GeneralFinancialStatement[]) => {
-                if (incomeStatements && incomeStatements.length !== 0) {
-                    return incomeStatements;
+        return this.fetchGeneralizedFinancialStatement(
+            `https://financialmodelingprep.com/api/v3/income-statement/${ticker}?limit=${count}&period=${period}&apikey=6bdfa0e424ca10e8d42f1a07bc67669d`
+        );
+    }
+
+    public fetchBalanceSheetStatements(
+        ticker: string,
+        period: string,
+        count: number
+    ): Observable<Array<GeneralFinancialStatement>> {
+        return this.fetchGeneralizedFinancialStatement(
+            `https://financialmodelingprep.com/api/v3/balance-sheet-statement/${ticker}?period=${period}&limit=${count}&apikey=6bdfa0e424ca10e8d42f1a07bc67669d`
+        );
+    }
+
+    private fetchGeneralizedFinancialStatement(url: string) {
+        return this.http.get<Array<GeneralFinancialStatement>>(url)
+            .pipe(map((data: Array<GeneralFinancialStatement>) => {
+                if (data && data.length !== 0) {
+                    return data;
                 }
                 return new Array<GeneralFinancialStatement>();
             }));
