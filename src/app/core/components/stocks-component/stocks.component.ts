@@ -26,7 +26,7 @@ const ChartTimePeriods = {
     TenYears: '10Y'
 };
 
-const Period = {
+const ReportingPeriod = {
     Annual: 'annual',
     Quarterly: 'quarterly'
 };
@@ -75,7 +75,7 @@ const balanceSheetTermsOfInterest = {
     totalInvestments: 'Total Investments',
     totalDebt: 'Total Debt',
     netDebt: 'Net Debt',
-}
+};
 
 @Component({
     selector: 'app-stocks-component',
@@ -88,18 +88,23 @@ export class StocksComponent implements OnInit {
     public priceHistories: Map<string, Array<Interval>>;
     public dividendHistory: Array<Dividend>;
     public quote: Quote | undefined;
+    public selectedTimePeriodOption: string = ChartTimePeriods.OneYear;
+    public selectedReportingPeriod: string = ReportingPeriod.Annual;
+    public chartDataConfigForPopUp: ChartConfiguration['data'] | undefined;
     public chartConfigData: ChartConfiguration['data'] | undefined;
     public chartConfigOptions: ChartConfiguration['options'] | undefined;
-    public selectedTimePeriodOption: string = ChartTimePeriods.OneYear;
     public cashFlowStatements: Array<GeneralFinancialStatement>;
     public cashFlowChartDataConfigs: Map<string, ChartConfiguration['data']>;
     public incomeStatements: Array<GeneralFinancialStatement>;
     public incomeChartDataConfigs: Map<string, ChartConfiguration['data']>;
     public balanceSheetStatements: Array<GeneralFinancialStatement>;
     public balanceSheetChartConfigs: Map<string, ChartConfiguration['data']>;
+    public shouldOpenChartModal: boolean;
+    private reportingPeriods: Map<string, string>;
 
     constructor(private stocksService: StocksService) {
         this.ticker = '';
+        this.shouldOpenChartModal = false;
         this.priceHistories = new Map<string, Array<Interval>>();
         this.dividendHistory = new Array<Dividend>();
         this.cashFlowStatements = new Array<GeneralFinancialStatement>();
@@ -108,6 +113,7 @@ export class StocksComponent implements OnInit {
         this.incomeChartDataConfigs = new Map<string, ChartConfiguration['data']>();
         this.balanceSheetStatements = new Array<GeneralFinancialStatement>();
         this.balanceSheetChartConfigs = new Map<string, ChartConfiguration['data']>();
+        this.reportingPeriods = new Map<string, string>(Object.entries(ReportingPeriod));
     }
 
     ngOnInit(): void {
@@ -128,9 +134,9 @@ export class StocksComponent implements OnInit {
                 this.stocksService.fetchQuoteByTicker(this.ticker),
                 this.stocksService.fetchTickerHistoricalPrices(start, today, this.ticker),
                 this.stocksService.fetchDividendDataByTicker(this.ticker),
-                this.stocksService.fetchCashFlowStatements(this.ticker, Period.Annual, 10),
-                this.stocksService.fetchIncomeStatements(this.ticker, Period.Annual, 10),
-                this.stocksService.fetchBalanceSheetStatements(this.ticker, Period.Annual, 10)
+                this.stocksService.fetchCashFlowStatements(this.ticker, ReportingPeriod.Annual, 10),
+                this.stocksService.fetchIncomeStatements(this.ticker, ReportingPeriod.Annual, 10),
+                this.stocksService.fetchBalanceSheetStatements(this.ticker, ReportingPeriod.Annual, 10)
             ]).pipe(tap(([quote, intervals, dividends, cashFlowStatements, incomeStatements, balanceSheetStatements]) => {
                 intervals.reverse();
                 this.priceHistories.set(this.selectedTimePeriodOption, intervals);
@@ -162,6 +168,53 @@ export class StocksComponent implements OnInit {
                 })
             })).subscribe(() => this.prepareInitChartConfig());
         }
+    }
+
+    public chartPopUpClickAction(key?: string) {
+        this.shouldOpenChartModal = !this.shouldOpenChartModal;
+        if (this.shouldOpenChartModal && key) {
+            Object.keys(cashFlowTermsOfInterest).forEach((keyTerm: string) => {
+                if (keyTerm === key) {
+                    const dataConfig = this.cashFlowChartDataConfigs.get(key);
+                    if (dataConfig) {
+                        this.chartDataConfigForPopUp = dataConfig;
+                        return;
+                    }
+                }
+            });
+            Object.keys(incomeTermsOfInterest).forEach((keyTerm: string) => {
+                if (keyTerm === key) {
+                    const dataConfig = this.incomeChartDataConfigs.get(key);
+                    if (dataConfig) {
+                        this.chartDataConfigForPopUp = dataConfig;
+                        return;
+                    }
+                }
+            });
+            Object.keys(balanceSheetTermsOfInterest).forEach((keyTerm: string) => {
+                if (keyTerm === key) {
+                    const dataConfig = this.balanceSheetChartConfigs.get(key);
+                    if (dataConfig) {
+                        this.chartDataConfigForPopUp = dataConfig;
+                        return;
+                    }
+                }
+            });
+        }
+    }
+
+    public isSelectedReportingPeriod(period: string): boolean {
+        return this.reportingPeriods.get(period) === this.selectedReportingPeriod;
+    }
+
+    public onSelectedReportingPeriodChange(period: string) {
+        if (this.reportingPeriods.has(period)) {
+            this.selectedReportingPeriod = this.reportingPeriods.get(period) ?? ReportingPeriod.Annual;
+        }
+    }
+
+    public get reportingPeriodKeys(): string[] {
+        return Array.from(this.reportingPeriods.keys());
     }
 
     public onTimePeriodChange(timePeriod: string) {

@@ -109,14 +109,16 @@
             <div class="dividing-line-horizontal"></div>
             <div class="statement-cat">
                 <div class="chart-container" *ngFor="let key of cashFlowStatementKeys">
-                    <label>{{ getCategoryValueByKey(key, cashFlowCategoryObj) }}</label>
-                    <canvas
-                        baseChart
-                        [type]="'bar'"
-                        [data]="getChartConfigForCashFlowCat(key)"
-                        [options]="chartConfigOptions"
-                    >
-                    </canvas>
+                    <div (click)="chartPopUpClickAction(key)">
+                        <label>{{ getCategoryValueByKey(key, cashFlowCategoryObj) }}</label>
+                        <canvas
+                            baseChart
+                            [type]="'bar'"
+                            [data]="getChartConfigForCashFlowCat(key)"
+                            [options]="chartConfigOptions"
+                        >
+                        </canvas>
+                    </div>
                 </div>  
             </div>
         </div>
@@ -125,14 +127,16 @@
             <div class="dividing-line-horizontal"></div>
             <div class="statement-cat">
                 <div class="chart-container" *ngFor="let key of incomeStatementKeys">
-                    <label>{{ getCategoryValueByKey(key, incomeCategoryObj) }}</label>
-                    <canvas
-                        baseChart
-                        [type]="'bar'"
-                        [data]="getChartConfigForIncomeCat(key)"
-                        [options]="chartConfigOptions"
-                    >
-                    </canvas>
+                    <div (click)="chartPopUpClickAction(key)">
+                        <label>{{ getCategoryValueByKey(key, incomeCategoryObj) }}</label>
+                        <canvas
+                            baseChart
+                            [type]="'bar'"
+                            [data]="getChartConfigForIncomeCat(key)"
+                            [options]="chartConfigOptions"
+                        >
+                        </canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -141,16 +145,44 @@
             <div class="dividing-line-horizontal"></div>
             <div class="statement-cat">
                 <div class="chart-container" *ngFor="let key of balanceSheetStatementKeys">
-                    <label>{{ getCategoryValueByKey(key, balanceSheetCategoryObj) }}</label>
-                    <canvas
-                        baseChart
-                        [type]="'bar'"
-                        [data]="getChartConfigForBalanceSheetCat(key)"
-                        [options]="chartConfigOptions"
-                    >
-                    </canvas>
+                    <div (click)="chartPopUpClickAction(key)">
+                        <label>{{ getCategoryValueByKey(key, balanceSheetCategoryObj) }}</label>
+                        <canvas
+                            baseChart
+                            [type]="'bar'"
+                            [data]="getChartConfigForBalanceSheetCat(key)"
+                            [options]="chartConfigOptions"
+                        >
+                        </canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<app-modal
+    [isOpen]="shouldOpenChartModal"
+    (closeModalEvent)="chartPopUpClickAction()"
+>
+    <div class="pop-up">
+        <div class="pop-up-periods">
+            <span 
+                *ngFor="let period of reportingPeriodKeys"
+                [class.pop-up-period-selected]="isSelectedReportingPeriod(period)"
+            >
+                <a
+                    (click)="onSelectedReportingPeriodChange(period)"
+                >
+                    {{ period }}
+                </a>
+            </span>
+        </div>
+        <canvas
+            baseChart
+            [type]="'bar'"
+            [data]="chartDataConfigForPopUp"
+            [options]="chartConfigOptions"
+        >
+        </canvas>
+    </div>
+</app-modal>
