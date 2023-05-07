@@ -15,7 +15,7 @@
             <h1>{{ quote.name }}</h1>
             <div class="price-info">
                 <span class="quote-price">
-                    {{ '$' + quote.price }}
+                    {{ '$' + round(quote.price) }}
                 </span>
                 <span 
                     class="quote-changes-percent"

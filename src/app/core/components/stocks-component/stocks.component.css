@@ -169,6 +169,7 @@ button[type=submit]:hover {
     margin: 1%;
     margin-left: 50px;
     margin-right: 50px;
+    min-width: 400px;
     text-align: center;
     color: #ccc;
 }

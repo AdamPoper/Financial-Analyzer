@@ -90,6 +90,7 @@ export class StocksComponent implements OnInit {
     public quote: Quote | undefined;
     public selectedTimePeriodOption: string = ChartTimePeriods.OneYear;
     public selectedReportingPeriod: string = ReportingPeriod.Annual;
+    public selectedReportingPeriodForPopUp: string = ReportingPeriod.Annual;
     public chartDataConfigForPopUp: ChartConfiguration['data'] | undefined;
     public chartConfigData: ChartConfiguration['data'] | undefined;
     public chartConfigOptions: ChartConfiguration['options'] | undefined;

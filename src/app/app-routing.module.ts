@@ -5,6 +5,7 @@ import { BondsComponent } from './core/components/bonds-component/bonds.componen
 import { CommoditiesComponent } from './core/components/commodities-component/commodities.component';
 
 const routes: Routes = [
+  { path: '', component: StocksComponent },
   { path: 'stocks', component: StocksComponent },
   { path: 'bonds', component: BondsComponent },
   { path: 'commodities', component: CommoditiesComponent },

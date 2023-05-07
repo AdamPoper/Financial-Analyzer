@@ -38,18 +38,31 @@ export class GeneralMarketService {
                 const openingMinute = 30;
                 const closingHour = 16;
                 const closingMinute = 0;
+                // console.log(today.getHours(), today.getMinutes());
 
-                const options = {timeZone: 'America/New_York'};
-                const currentEastCoastDate = new Date(today.toLocaleString('en_US', options));
+                // const options = { timeZone: 'America/New_York' };
+                // const formatter = new Intl.DateTimeFormat('en-US', options);
+                // let currentEastCoastDate;
+                const timezoneOffsetInMs = -5 * 60 * 60 * 1000; // offset for America/New_York
+                const currentEastCoastDate = new Date(Date.UTC(
+                    today.getFullYear(),
+                    today.getMonth(),
+                    today.getDate(),
+                    today.getHours(),
+                    today.getMinutes(),
+                    today.getSeconds()
+                ) + timezoneOffsetInMs);
 
                 const currentHour = currentEastCoastDate.getHours();
                 const currentMinute = currentEastCoastDate.getMinutes();
 
                 if (currentHour < openingHour && currentMinute < openingMinute) {
+                    console.log(currentEastCoastDate);
                     return false;
                 }
 
                 if (currentHour > closingHour && currentMinute > closingMinute) {
+                    console.log(currentEastCoastDate);
                     return false;
                 }
 
