@@ -100,11 +100,14 @@ export class StocksComponent implements OnInit {
     public incomeChartDataConfigs: Map<string, ChartConfiguration['data']>;
     public balanceSheetStatements: Array<GeneralFinancialStatement>;
     public balanceSheetChartConfigs: Map<string, ChartConfiguration['data']>;
+    public quarterlyStatementConfigs: Map<string, ChartConfiguration['data']>;
     public shouldOpenChartModal: boolean;
+    private activeSelectedKey: string;
     private reportingPeriods: Map<string, string>;
 
     constructor(private stocksService: StocksService) {
         this.ticker = '';
+        this.activeSelectedKey = '';
         this.shouldOpenChartModal = false;
         this.priceHistories = new Map<string, Array<Interval>>();
         this.dividendHistory = new Array<Dividend>();
@@ -114,6 +117,7 @@ export class StocksComponent implements OnInit {
         this.incomeChartDataConfigs = new Map<string, ChartConfiguration['data']>();
         this.balanceSheetStatements = new Array<GeneralFinancialStatement>();
         this.balanceSheetChartConfigs = new Map<string, ChartConfiguration['data']>();
+        this.quarterlyStatementConfigs = new Map<string, ChartConfiguration['data']>();
         this.reportingPeriods = new Map<string, string>(Object.entries(ReportingPeriod));
     }
 
@@ -173,34 +177,13 @@ export class StocksComponent implements OnInit {
 
     public chartPopUpClickAction(key?: string) {
         this.shouldOpenChartModal = !this.shouldOpenChartModal;
+        if (!key) {
+            key = '';
+            this.selectedReportingPeriod = ReportingPeriod.Annual;
+        }
         if (this.shouldOpenChartModal && key) {
-            Object.keys(cashFlowTermsOfInterest).forEach((keyTerm: string) => {
-                if (keyTerm === key) {
-                    const dataConfig = this.cashFlowChartDataConfigs.get(key);
-                    if (dataConfig) {
-                        this.chartDataConfigForPopUp = dataConfig;
-                        return;
-                    }
-                }
-            });
-            Object.keys(incomeTermsOfInterest).forEach((keyTerm: string) => {
-                if (keyTerm === key) {
-                    const dataConfig = this.incomeChartDataConfigs.get(key);
-                    if (dataConfig) {
-                        this.chartDataConfigForPopUp = dataConfig;
-                        return;
-                    }
-                }
-            });
-            Object.keys(balanceSheetTermsOfInterest).forEach((keyTerm: string) => {
-                if (keyTerm === key) {
-                    const dataConfig = this.balanceSheetChartConfigs.get(key);
-                    if (dataConfig) {
-                        this.chartDataConfigForPopUp = dataConfig;
-                        return;
-                    }
-                }
-            });
+            this.activeSelectedKey = key;
+            this.setAnnualDataConfig(key);
         }
     }
 
@@ -211,6 +194,55 @@ export class StocksComponent implements OnInit {
     public onSelectedReportingPeriodChange(period: string) {
         if (this.reportingPeriods.has(period)) {
             this.selectedReportingPeriod = this.reportingPeriods.get(period) ?? ReportingPeriod.Annual;
+        }
+        if (this.activeSelectedKey !== '') {
+            switch(this.selectedReportingPeriod) {
+                case ReportingPeriod.Annual: 
+                    this.setAnnualDataConfig(this.activeSelectedKey);
+                    break;
+                case ReportingPeriod.Quarterly:
+                    if (this.quarterlyStatementConfigs.has(this.activeSelectedKey)) {
+                        this.chartDataConfigForPopUp = this.quarterlyStatementConfigs.get(this.activeSelectedKey);
+                    } else {
+                        if (Object.keys(cashFlowTermsOfInterest).find(keyTerm => keyTerm === this.activeSelectedKey)) {
+                            this.stocksService.fetchCashFlowStatements(
+                                this.ticker,
+                                ReportingPeriod.Quarterly,
+                                25
+                            ).subscribe((quarterlyCashFlowStatements: Array<GeneralFinancialStatement>) => {
+                                const quarterlyDataConfig = this.createChartConfigForFinancialStatementCat(
+                                    this.activeSelectedKey, cashFlowTermsOfInterest, this.cashFlowStatementKeys, quarterlyCashFlowStatements
+                                );
+                                this.quarterlyStatementConfigs.set(this.activeSelectedKey, quarterlyDataConfig);
+                                this.chartDataConfigForPopUp = quarterlyDataConfig;
+                            });
+                        } else if (Object.keys(incomeTermsOfInterest).find(keyTerm => keyTerm === this.activeSelectedKey)) {
+                            this.stocksService.fetchIncomeStatements(
+                                this.ticker,
+                                ReportingPeriod.Quarterly,
+                                25
+                            ).subscribe((quarterlyIncomeStatement: Array<GeneralFinancialStatement>) => {
+                                const quarterlyDataConfig = this.createChartConfigForFinancialStatementCat(
+                                    this.activeSelectedKey, incomeTermsOfInterest, this.incomeStatementKeys, quarterlyIncomeStatement
+                                );
+                                this.quarterlyStatementConfigs.set(this.activeSelectedKey, quarterlyDataConfig);
+                                this.chartDataConfigForPopUp = quarterlyDataConfig;
+                            });
+                        } else if (Object.keys(balanceSheetTermsOfInterest).find(keyTerm => keyTerm === this.activeSelectedKey)) {
+                            this.stocksService.fetchBalanceSheetStatements(
+                                this.ticker,
+                                ReportingPeriod.Quarterly,
+                                25
+                            ).subscribe((quarterlyBalanceSheetStatement: Array<GeneralFinancialStatement>) => {
+                                const quarterlyDataConfig = this.createChartConfigForFinancialStatementCat(
+                                    this.activeSelectedKey, balanceSheetTermsOfInterest, this.balanceSheetStatementKeys, quarterlyBalanceSheetStatement
+                                );
+                                this.quarterlyStatementConfigs.set(this.activeSelectedKey, quarterlyDataConfig);
+                                this.chartDataConfigForPopUp = quarterlyDataConfig;
+                            });
+                        }
+                    }
+            }
         }
     }
 
@@ -323,6 +355,36 @@ export class StocksComponent implements OnInit {
         const data = financialStatements.map(fs => fs[cat]);
         const filteredData = data.filter(value => value !== undefined && value !== 0);        
         return filteredData.length === 0;
+    }
+
+    private setAnnualDataConfig(key: string) {
+        Object.keys(cashFlowTermsOfInterest).forEach((keyTerm: string) => {
+            if (keyTerm === key) {
+                const dataConfig = this.cashFlowChartDataConfigs.get(key);
+                if (dataConfig) {
+                    this.chartDataConfigForPopUp = dataConfig;
+                    return;
+                }
+            }
+        });
+        Object.keys(incomeTermsOfInterest).forEach((keyTerm: string) => {
+            if (keyTerm === key) {
+                const dataConfig = this.incomeChartDataConfigs.get(key);
+                if (dataConfig) {
+                    this.chartDataConfigForPopUp = dataConfig;
+                    return;
+                }
+            }
+        });
+        Object.keys(balanceSheetTermsOfInterest).forEach((keyTerm: string) => {
+            if (keyTerm === key) {
+                const dataConfig = this.balanceSheetChartConfigs.get(key);
+                if (dataConfig) {
+                    this.chartDataConfigForPopUp = dataConfig;
+                    return;
+                }
+            }
+        });
     }
 
     private createChartConfigForFinancialStatementCat(cat: string, catNames: object, catKeys: string[], finStatements: Array<GeneralFinancialStatement>) {
