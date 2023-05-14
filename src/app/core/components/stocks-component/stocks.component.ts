@@ -127,6 +127,7 @@ export class StocksComponent implements OnInit {
 
     public onTickerSearch(): void {
         this.priceHistories.clear();
+        this.quarterlyStatementConfigs.clear();
         this.dividendHistory = new Array<Dividend>();
         this.cashFlowStatements = new Array<GeneralFinancialStatement>();
         this.incomeStatements = new Array<GeneralFinancialStatement>();
