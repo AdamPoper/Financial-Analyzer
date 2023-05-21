@@ -30,6 +30,12 @@
             </div>
         </div>
     </div>
+    <div class="no-results-msg" *ngIf="shouldDisplayNoResultsMessage">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+        </svg>
+        <h1>{{ resultsEmptyMsg }}</h1>
+    </div>
     <div 
         *ngIf="shouldDisplayQuoteInfo" 
         class="quote-container"
@@ -80,15 +86,15 @@
             </div>
             <div class="quote-details-container">
                 <span>Market Cap</span>
-                <span>{{ '$' + quote.marketCap.toLocaleString() }}</span>
+                <span>{{ quote.marketCap !== 0 ? '$' + quote.marketCap.toLocaleString() : '-' }}</span>
             </div>
             <div class="quote-details-container">
                 <span>Earnings Per Share</span>
-                <span>{{ quote.eps }}</span>
+                <span>{{ quote.eps !== 0 ? round(quote.eps) : '-'}}</span>
             </div>
             <div class="quote-details-container">
                 <span>P/E</span>
-                <span>{{ quote.pe }}</span>
+                <span>{{ quote.pe ? quote.pe : '-' }}</span>
             </div>
             <div class="quote-details-container">
                 <span>Earnings Announcement</span>
@@ -104,13 +110,13 @@
         </div>
     </div>
     <div *ngIf="shouldDisplayQuoteInfo" class="statment-cat-charts">
-        <div class="statement-cat-container">
+        <div *ngIf="cashFlowStatements.length !== 0" class="statement-cat-container">
             <h1>Cash Flow Statements</h1>
             <div class="dividing-line-horizontal"></div>
             <div class="statement-cat">
                 <div class="chart-container" *ngFor="let key of cashFlowStatementKeys">
                     <div (click)="chartPopUpClickAction(key)">
-                        <label>{{ getCategoryValueByKey(key, cashFlowCategoryObj) }}</label>
+                        <label>{{ getCategoryValueByKey(key) }}</label>
                         <canvas
                             baseChart
                             [type]="'bar'"
@@ -122,13 +128,13 @@
                 </div>  
             </div>
         </div>
-        <div class="statement-cat-container">
+        <div *ngIf="incomeStatements.length !== 0" class="statement-cat-container">
             <h1>Income Statements</h1>
             <div class="dividing-line-horizontal"></div>
             <div class="statement-cat">
                 <div class="chart-container" *ngFor="let key of incomeStatementKeys">
                     <div (click)="chartPopUpClickAction(key)">
-                        <label>{{ getCategoryValueByKey(key, incomeCategoryObj) }}</label>
+                        <label>{{ getCategoryValueByKey(key) }}</label>
                         <canvas
                             baseChart
                             [type]="'bar'"
@@ -140,13 +146,13 @@
                 </div>
             </div>
         </div>
-        <div class="statement-cat-container">
+        <div *ngIf="balanceSheetStatements.length !== 0" class="statement-cat-container">
             <h1>Balance Sheet</h1>
             <div class="dividing-line-horizontal"></div>
             <div class="statement-cat">
                 <div class="chart-container" *ngFor="let key of balanceSheetStatementKeys">
                     <div (click)="chartPopUpClickAction(key)">
-                        <label>{{ getCategoryValueByKey(key, balanceSheetCategoryObj) }}</label>
+                        <label>{{ getCategoryValueByKey(key) }}</label>
                         <canvas
                             baseChart
                             [type]="'bar'"
@@ -165,6 +171,7 @@
     (closeModalEvent)="chartPopUpClickAction()"
 >
     <div class="pop-up">
+        <h1>{{ getCategoryValueByKey(activeSelectedKey) }}</h1>
         <div class="pop-up-periods">
             <span 
                 *ngFor="let period of reportingPeriodKeys"

@@ -7,7 +7,6 @@ import { Dividend } from "../models/dividend";
 import { Historical } from "../models/historical";
 import { AppUtil } from "../util/app-util";
 import { GeneralFinancialStatement } from "../models/financial-statement";
-import { UrlHandlingStrategy } from "@angular/router";
 
 @Injectable({providedIn: 'root'})
 export class StocksService {

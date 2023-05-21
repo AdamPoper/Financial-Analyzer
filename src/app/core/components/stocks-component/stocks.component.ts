@@ -102,8 +102,10 @@ export class StocksComponent implements OnInit {
     public balanceSheetChartConfigs: Map<string, ChartConfiguration['data']>;
     public quarterlyStatementConfigs: Map<string, ChartConfiguration['data']>;
     public shouldOpenChartModal: boolean;
-    private activeSelectedKey: string;
+    public shouldDisplayNoResultsMessage = false;
+    public activeSelectedKey: string;
     private reportingPeriods: Map<string, string>;
+    private allStatementCategoryEntries: Map<string, string>;
 
     constructor(private stocksService: StocksService) {
         this.ticker = '';
@@ -119,6 +121,11 @@ export class StocksComponent implements OnInit {
         this.balanceSheetChartConfigs = new Map<string, ChartConfiguration['data']>();
         this.quarterlyStatementConfigs = new Map<string, ChartConfiguration['data']>();
         this.reportingPeriods = new Map<string, string>(Object.entries(ReportingPeriod));
+        const allEntries = new Array<[string, string]>();
+        allEntries.push(...Object.entries(cashFlowTermsOfInterest));
+        allEntries.push(...Object.entries(incomeTermsOfInterest));
+        allEntries.push(...Object.entries(balanceSheetTermsOfInterest));
+        this.allStatementCategoryEntries = new Map<string, string>(allEntries);
     }
 
     ngOnInit(): void {
@@ -146,32 +153,39 @@ export class StocksComponent implements OnInit {
             ]).pipe(tap(([quote, intervals, dividends, cashFlowStatements, incomeStatements, balanceSheetStatements]) => {
                 intervals.reverse();
                 this.priceHistories.set(this.selectedTimePeriodOption, intervals);
+                this.shouldDisplayNoResultsMessage = quote === undefined;
                 this.quote = quote;
                 this.dividendHistory.push(...dividends);
-                this.cashFlowStatements.push(...cashFlowStatements);
-                this.cashFlowStatementKeys.forEach(cat => {
-                    this.cashFlowChartDataConfigs.set(cat, 
-                        this.createChartConfigForFinancialStatementCat(
-                            cat, cashFlowTermsOfInterest, this.cashFlowStatementKeys, this.cashFlowStatements
-                        )
-                    );
-                });
-                this.incomeStatements.push(...incomeStatements);
-                this.incomeStatementKeys.forEach(cat => {
-                    this.incomeChartDataConfigs.set(cat, 
-                        this.createChartConfigForFinancialStatementCat(
-                            cat, incomeTermsOfInterest, this.incomeStatementKeys, this.incomeStatements
-                        )
-                    );
-                });
-                this.balanceSheetStatements.push(...balanceSheetStatements);
-                this.balanceSheetStatementKeys.forEach(cat => {
-                    this.balanceSheetChartConfigs.set(cat,
-                        this.createChartConfigForFinancialStatementCat(
-                            cat, balanceSheetTermsOfInterest, this.balanceSheetStatementKeys, this.balanceSheetStatements
-                        )
-                    );
-                })
+                if (cashFlowStatements.length !== 0) {
+                    this.cashFlowStatements.push(...cashFlowStatements);
+                    this.cashFlowStatementKeys.forEach(cat => {
+                        this.cashFlowChartDataConfigs.set(cat, 
+                            this.createChartConfigForFinancialStatementCat(
+                                cat, cashFlowTermsOfInterest, this.cashFlowStatementKeys, this.cashFlowStatements
+                            )
+                        );
+                    });
+                }
+                if (incomeStatements.length !== 0) {
+                    this.incomeStatements.push(...incomeStatements);
+                    this.incomeStatementKeys.forEach(cat => {
+                        this.incomeChartDataConfigs.set(cat, 
+                            this.createChartConfigForFinancialStatementCat(
+                                cat, incomeTermsOfInterest, this.incomeStatementKeys, this.incomeStatements
+                            )
+                        );
+                    });
+                }
+                if (balanceSheetStatements.length !== 0) {
+                    this.balanceSheetStatements.push(...balanceSheetStatements);
+                    this.balanceSheetStatementKeys.forEach(cat => {
+                        this.balanceSheetChartConfigs.set(cat,
+                            this.createChartConfigForFinancialStatementCat(
+                                cat, balanceSheetTermsOfInterest, this.balanceSheetStatementKeys, this.balanceSheetStatements
+                            )
+                        );
+                    })
+                }
             })).subscribe(() => this.prepareInitChartConfig());
         }
     }
@@ -300,6 +314,10 @@ export class StocksComponent implements OnInit {
         return balanceSheetTermsOfInterest;
     }
 
+    public get resultsEmptyMsg(): string {
+        return 'No results found for "' + this.ticker + '"';
+    }
+
     public get latestDividendQuote(): number {
         if (!this.tickerPaysDividend) {
             return 0;
@@ -333,8 +351,8 @@ export class StocksComponent implements OnInit {
         throw new Error("Eternal Dividend Data");
     }
 
-    public getCategoryValueByKey(cat: string, obj: object) {
-        return new Map<string, string>(Object.entries(obj)).get(cat);
+    public getCategoryValueByKey(key: string) {
+        return this.allStatementCategoryEntries.get(key);
     }
 
     public getChartConfigForCashFlowCat(cat: string): ChartConfiguration['data'] {

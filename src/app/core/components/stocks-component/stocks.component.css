@@ -198,7 +198,12 @@ button[type=submit]:hover {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    text-align: center;  
+    text-align: center;
+}
+
+.pop-up h1 {
+    color: #ccc;
+    margin-bottom: 10px;
 }
 
 .pop-up-periods {
@@ -223,4 +228,17 @@ button[type=submit]:hover {
 
 .pop-up-period-selected {
     background-color: #565a70;
+}
+
+.no-results-msg {
+    color: #5d606e;
+    margin: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.no-results-msg svg {
+   margin: 5px;
 }
