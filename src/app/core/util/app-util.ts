@@ -1,3 +1,5 @@
+import { ChartConfiguration } from "chart.js";
+
 export class AppUtil {
 
     private constructor() {}
@@ -53,5 +55,37 @@ export class AppUtil {
     public static round(value: number, decimalPlaces: number): number {
         const n = Math.pow(10, decimalPlaces);
         return Math.round(value * n) / n;
+    }
+
+    public static createDefaultAppChartDataConfig(
+        data: Array<any>,
+        labels: Array<any>
+    ): ChartConfiguration['data'] {
+        if (data.length !== 0 && labels.length !== 0) {
+            return {
+                datasets: [{
+                    data: data,
+                    fill: false,
+                    borderColor: '#3485d1',
+                    backgroundColor: '#3485d1',
+                    tension: 0,
+                    label: undefined,
+                    pointRadius: 0
+                }],
+                labels: labels
+            }
+        }
+        return {} as ChartConfiguration['data'];
+    }
+
+    public static removeFromArray<T>(values: Array<T>, doomed: T): T[] {
+        const index = values.indexOf(doomed);
+
+        if (index === -1) {
+            return values;
+        }
+
+        values.splice(index, 1);
+        return values;
     }
 }

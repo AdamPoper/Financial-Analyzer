@@ -150,6 +150,11 @@ button[type=submit]:hover {
     justify-content: space-between;
 }
 
+.quote-details-container a {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 .statement-cat-charts {
     display: flex;
     flex-direction: column;

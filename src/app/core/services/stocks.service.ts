@@ -7,6 +7,7 @@ import { Dividend } from "../models/dividend";
 import { Historical } from "../models/historical";
 import { AppUtil } from "../util/app-util";
 import { GeneralFinancialStatement } from "../models/financial-statement";
+import { API_KEY } from "src/app/apiKey";
 
 @Injectable({providedIn: 'root'})
 export class StocksService {
@@ -20,7 +21,7 @@ export class StocksService {
         if (!ticker || ticker === '') {
             throw new Error('Ticker is empty');
         }
-        return this.http.get<Quote[]>(`https://financialmodelingprep.com/api/v3/quote/${ticker}?apikey=6bdfa0e424ca10e8d42f1a07bc67669d`)
+        return this.http.get<Quote[]>(`https://financialmodelingprep.com/api/v3/quote/${ticker}?apikey=${API_KEY}`)
             .pipe(map((data: Quote[]) => {
                 if (data !== undefined && data !== null && data.length !== 0) {
                     return new Quote(data[0]);
@@ -36,7 +37,7 @@ export class StocksService {
         }
         const from = AppUtil.getFormattedDate(start);
         const to = AppUtil.getFormattedDate(end);
-        return this.http.get<Historical<Interval>>(`https://financialmodelingprep.com/api/v3/historical-price-full/${ticker}?from=${from}&to=${to}&apikey=6bdfa0e424ca10e8d42f1a07bc67669d`)
+        return this.http.get<Historical<Interval>>(`https://financialmodelingprep.com/api/v3/historical-price-full/${ticker}?from=${from}&to=${to}&apikey=${API_KEY}`)
             .pipe(map((data: Historical<Interval>) => {
                return this.mapHistorical<Interval>(data, ticker);
             }));
@@ -44,7 +45,7 @@ export class StocksService {
 
     public fetchDividendDataByTicker(ticker: string) {
         ticker = ticker.toUpperCase();
-        return this.http.get<Historical<Dividend>>(`https://financialmodelingprep.com/api/v3/historical-price-full/stock_dividend/${ticker}?apikey=6bdfa0e424ca10e8d42f1a07bc67669d`)
+        return this.http.get<Historical<Dividend>>(`https://financialmodelingprep.com/api/v3/historical-price-full/stock_dividend/${ticker}?apikey=${API_KEY}`)
             .pipe(map((data: Historical<Dividend>) => {
                 return this.mapHistorical<Dividend>(data, ticker);
             }));
@@ -57,7 +58,7 @@ export class StocksService {
     ): Observable<Array<GeneralFinancialStatement>> {
         ticker = ticker.toUpperCase();
         return this.fetchGeneralizedFinancialStatement(
-            `https://financialmodelingprep.com/api/v3/cash-flow-statement/${ticker}?period=${period}&limit=${count}&apikey=6bdfa0e424ca10e8d42f1a07bc67669d`
+            `https://financialmodelingprep.com/api/v3/cash-flow-statement/${ticker}?period=${period}&limit=${count}&apikey=${API_KEY}`
         );
     }
 
@@ -68,7 +69,7 @@ export class StocksService {
     ): Observable<Array<GeneralFinancialStatement>> {
         ticker = ticker.toUpperCase();
         return this.fetchGeneralizedFinancialStatement(
-            `https://financialmodelingprep.com/api/v3/income-statement/${ticker}?limit=${count}&period=${period}&apikey=6bdfa0e424ca10e8d42f1a07bc67669d`
+            `https://financialmodelingprep.com/api/v3/income-statement/${ticker}?limit=${count}&period=${period}&apikey=${API_KEY}`
         );
     }
 
@@ -78,7 +79,7 @@ export class StocksService {
         count: number
     ): Observable<Array<GeneralFinancialStatement>> {
         return this.fetchGeneralizedFinancialStatement(
-            `https://financialmodelingprep.com/api/v3/balance-sheet-statement/${ticker}?period=${period}&limit=${count}&apikey=6bdfa0e424ca10e8d42f1a07bc67669d`
+            `https://financialmodelingprep.com/api/v3/balance-sheet-statement/${ticker}?period=${period}&limit=${count}&apikey=${API_KEY}`
         );
     }
 

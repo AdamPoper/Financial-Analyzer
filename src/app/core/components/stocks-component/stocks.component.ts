@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { StocksService } from '../../services/stocks.service';
 import { Interval } from '../../models/interval';
 import { Quote } from '../../models/quote';
-import { ChartConfiguration, ChartOptions } from 'chart.js';
+import { ChartConfiguration } from 'chart.js';
 import { combineLatest, tap } from 'rxjs';
 import { AppUtil } from '../../util/app-util';
 import { Dividend } from '../../models/dividend';
 import { GeneralFinancialStatement } from '../../models/financial-statement';
+import { historicalDividendsLabel, cashFlowTermsOfInterest, incomeTermsOfInterest, balanceSheetTermsOfInterest } from './accountingTermsOfInterest'
 
 interface CanvasInterval {
     date: string;
@@ -28,53 +29,8 @@ const ChartTimePeriods = {
 
 const ReportingPeriod = {
     Annual: 'annual',
-    Quarterly: 'quarterly'
-};
-
-const cashFlowTermsOfInterest = {
-    freeCashFlow: 'Free Cash Flow',
-    depreciationAndAmortization: 'Depreciation and Amortization',
-    stockBasedCompensation: 'Stock Based Compensation',
-    commonStockRepurchased: 'Common Stock Repurchased',
-    cashAtEndOfPeriod: 'Cash at End of Period',
-    operatingCashFlow: 'Operating Cash Flow',
-    capitalExpenditure: 'Capital Expenditure',
-};
-
-const incomeTermsOfInterest = {
-    revenue: 'Revenue',
-    costOfRevenue: 'Cost of Revenue',
-    grossProfit: 'Gross Profit',
-    researchAndDevelopmentExpenses: 'R&D Expenses',
-    generalAndAdministrativeExpenses: 'General/Admin Expenses',
-    otherExpenses: 'Other Expenses',
-    operatingExpenses: 'Operating Expenses',
-    costAndExpenses: 'Cost and Expenses',
-    interestIncome: 'Interest Income',
-    interestExpense: 'Interest Expense',
-    ebita: 'EBITA',
-    operatingIncome: 'Operating Income',
-    incomeBeforeTax: 'Income Before tax',
-    incomeTaxIncome: 'Income Tax Expense',
-    netIncome: 'Net Income',
-    eps: 'Earnings per Share'
-};
-
-const balanceSheetTermsOfInterest = {
-    cashAndCashEquivalents: 'Cash and Cash Equivalents',
-    shortTermInvestments: 'Short Term Investments',
-    cashAndShortTermInvestments: 'Cash and Short Term Investments',
-    otherCurrentAssets: 'Other Current Assets',
-    totalCurrentAssets: 'Total Current Assets',
-    propertyPlantEquipmentNet: 'Property Plant Equipment Net',
-    longTermInvestments: 'Long Term Investments',
-    totalAssets: 'Total Assets',
-    shortTermDebt: 'Short Term Debt',
-    totalLiabilities: 'Total Liabilities',
-    totalStockHolderEquity: 'Total Stock Holder Equity',
-    totalInvestments: 'Total Investments',
-    totalDebt: 'Total Debt',
-    netDebt: 'Net Debt',
+    Quarterly: 'quarterly',
+    None: 'none'
 };
 
 @Component({
@@ -125,6 +81,7 @@ export class StocksComponent implements OnInit {
         allEntries.push(...Object.entries(cashFlowTermsOfInterest));
         allEntries.push(...Object.entries(incomeTermsOfInterest));
         allEntries.push(...Object.entries(balanceSheetTermsOfInterest));
+        allEntries.push(...Object.entries(historicalDividendsLabel));
         this.allStatementCategoryEntries = new Map<string, string>(allEntries);
     }
 
@@ -262,7 +219,8 @@ export class StocksComponent implements OnInit {
     }
 
     public get reportingPeriodKeys(): string[] {
-        return Array.from(this.reportingPeriods.keys());
+        const keys = Array.from(this.reportingPeriods.keys());
+        return AppUtil.removeFromArray<string>(keys, keys[2]);
     }
 
     public onTimePeriodChange(timePeriod: string) {
@@ -351,7 +309,19 @@ export class StocksComponent implements OnInit {
         throw new Error("Eternal Dividend Data");
     }
 
-    public getCategoryValueByKey(key: string) {
+    public viewHistoricalDividendData(): void {
+        if (this.dividendHistory.length !== 0 && !this.shouldOpenChartModal) {
+            this.shouldOpenChartModal = !this.shouldOpenChartModal;
+            this.selectedReportingPeriod = ReportingPeriod.None;
+            this.activeSelectedKey = Object.keys(historicalDividendsLabel)[0];
+            this.chartDataConfigForPopUp = AppUtil.createDefaultAppChartDataConfig(
+                this.dividendHistory.map(d => d.adjDividend).slice(0, 40).reverse(),
+                this.dividendHistory.map(d => d.date).slice(0, 40).reverse()
+            );
+        }
+    }
+
+    public getCategoryValueByKey(key: string): string | undefined {
         return this.allStatementCategoryEntries.get(key);
     }
 
@@ -406,25 +376,22 @@ export class StocksComponent implements OnInit {
         });
     }
 
-    private createChartConfigForFinancialStatementCat(cat: string, catNames: object, catKeys: string[], finStatements: Array<GeneralFinancialStatement>) {
+    private createChartConfigForFinancialStatementCat(
+        cat: string,
+        catNames: object,
+        catKeys: string[],
+        finStatements: Array<GeneralFinancialStatement>
+    ): ChartConfiguration['data'] {
         if (catKeys.length !== 0 && cat in catNames) {
-            return {
-                datasets: [{
-                    data: finStatements.map(fs => fs[cat]).reverse(),
-                    fill: false,
-                    borderColor: '#3485d1',
-                    backgroundColor: '#3485d1',
-                    tension: 0,
-                    label: undefined,
-                    pointRadius: 0
-                }],
-                labels: finStatements.map(cfs => cfs.date).reverse()
-            } as ChartConfiguration['data'];
+            return AppUtil.createDefaultAppChartDataConfig(
+                finStatements.map(fs => fs[cat]).reverse(),
+                finStatements.map(cfs => cfs.date).reverse()
+            );
         }
         return {} as ChartConfiguration['data'];
     }
 
-    private getStartDateForSelectedOption() {
+    private getStartDateForSelectedOption(): Date {
         const today = new Date();
         switch (this.selectedTimePeriodOption) {
             // TODO: need to add a way to get more time intervals for 1D, 1W, 1M
@@ -461,17 +428,10 @@ export class StocksComponent implements OnInit {
     }
 
     private initChartConfig(dataSet: Array<CanvasInterval>): void {
-        this.chartConfigData = {
-            datasets: [{
-                data: dataSet.map(i => i.price),
-                fill: false,
-                borderColor: '#3485d1',
-                tension: 0,
-                label: undefined,
-                pointRadius: 0
-            }],
-            labels: dataSet.map(i => i.date)
-        };
+        this.chartConfigData = AppUtil.createDefaultAppChartDataConfig(
+            dataSet.map(i => i.price),
+            dataSet.map(i => i.date)
+        );
         this.chartConfigOptions = {
             plugins: {
                 legend: {

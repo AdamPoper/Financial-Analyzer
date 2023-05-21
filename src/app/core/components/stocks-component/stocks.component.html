@@ -101,7 +101,10 @@
                 <span>{{ dateFormat(quote.earningsAnnouncement) }}</span>
             </div>
             <div class="quote-details-container">
-                <span>Estimated Dividend Rate</span>
+                <span>
+                    <a *ngIf="tickerPaysDividend" (click)="viewHistoricalDividendData()">Estimated Dividend Rate</a>
+                    <span *ngIf="!tickerPaysDividend">Estimated Dividend Rate</span>
+                </span>
                 <span>{{ 
                     tickerPaysDividend && latestDividendQuote !== 0 ?
                     latestDividendQuote + '%' : '-' 
@@ -172,8 +175,8 @@
 >
     <div class="pop-up">
         <h1>{{ getCategoryValueByKey(activeSelectedKey) }}</h1>
-        <div class="pop-up-periods">
-            <span 
+        <div *ngIf="selectedReportingPeriod != 'none'" class="pop-up-periods">
+            <span
                 *ngFor="let period of reportingPeriodKeys"
                 [class.pop-up-period-selected]="isSelectedReportingPeriod(period)"
             >
