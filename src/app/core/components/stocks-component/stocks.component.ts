@@ -168,7 +168,7 @@ export class StocksComponent implements OnInit {
             this.selectedReportingPeriod = this.reportingPeriods.get(period) ?? ReportingPeriod.Annual;
         }
         if (this.activeSelectedKey !== '') {
-            switch(this.selectedReportingPeriod) {
+            switch (this.selectedReportingPeriod) {
                 case ReportingPeriod.Annual: 
                     this.setAnnualDataConfig(this.activeSelectedKey);
                     break;
@@ -214,6 +214,8 @@ export class StocksComponent implements OnInit {
                             });
                         }
                     }
+                    break;
+                default: throw new Error('Unsupported Reporting Period');
             }
         }
     }
@@ -347,33 +349,21 @@ export class StocksComponent implements OnInit {
     }
 
     private setAnnualDataConfig(key: string) {
-        Object.keys(cashFlowTermsOfInterest).forEach((keyTerm: string) => {
+        const keysAndConfigs = new Map<string, Map<string, ChartConfiguration['data']>>();
+
+        Object.keys(cashFlowTermsOfInterest).forEach(keyTerm => keysAndConfigs.set(keyTerm, this.cashFlowChartDataConfigs));
+        Object.keys(incomeTermsOfInterest).forEach(keyTerm => keysAndConfigs.set(keyTerm, this.incomeChartDataConfigs));
+        Object.keys(balanceSheetTermsOfInterest).forEach(keyTerm => keysAndConfigs.set(keyTerm, this.balanceSheetChartConfigs));
+
+        for (const keyTerm of keysAndConfigs.keys()) {
             if (keyTerm === key) {
-                const dataConfig = this.cashFlowChartDataConfigs.get(key);
+                const dataConfig = keysAndConfigs.get(keyTerm)?.get(key);
                 if (dataConfig) {
                     this.chartDataConfigForPopUp = dataConfig;
                     return;
                 }
             }
-        });
-        Object.keys(incomeTermsOfInterest).forEach((keyTerm: string) => {
-            if (keyTerm === key) {
-                const dataConfig = this.incomeChartDataConfigs.get(key);
-                if (dataConfig) {
-                    this.chartDataConfigForPopUp = dataConfig;
-                    return;
-                }
-            }
-        });
-        Object.keys(balanceSheetTermsOfInterest).forEach((keyTerm: string) => {
-            if (keyTerm === key) {
-                const dataConfig = this.balanceSheetChartConfigs.get(key);
-                if (dataConfig) {
-                    this.chartDataConfigForPopUp = dataConfig;
-                    return;
-                }
-            }
-        });
+        }
     }
 
     private createChartConfigForFinancialStatementCat(
