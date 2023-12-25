@@ -30,6 +30,18 @@ export class StocksService {
             }));
     }
 
+    public fetchQuotesForMultipleSymbols(symbols: string[]): Observable<Quote[]> {
+        symbols = symbols.map(s => s.toUpperCase());
+        if (symbols.length === 0) {
+            throw new Error('Symbols is empty');
+        }
+        const symbolsPathParam = symbols.join(',');
+        return this.http.get<Quote[]>(`https://financialmodelingprep.com/api/v3/quote/${symbolsPathParam}?apikey=${API_KEY}`)
+            .pipe(map((data: Quote[]) => {
+                return data.map(q => new Quote(q));
+            }));
+    } 
+
     public fetchTickerHistoricalPrices(start: Date, end: Date, ticker: string): Observable<Interval[]> {
         ticker = ticker.toUpperCase();
         if (!ticker || ticker === '') {

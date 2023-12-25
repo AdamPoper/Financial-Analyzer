@@ -10,6 +10,7 @@ import { CommoditiesComponent } from './core/components/commodities-component/co
 import { FormsModule } from '@angular/forms';
 import { NgChartsModule } from 'ng2-charts';
 import { ModalComponent } from './core/components/modal/modal.component';
+import { WatchListsComponent } from './core/components/watch-lists/watch-lists.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { ModalComponent } from './core/components/modal/modal.component';
     StocksComponent,
     BondsComponent,
     CommoditiesComponent,
-    ModalComponent
+    ModalComponent,
+    WatchListsComponent
   ],
   imports: [
     BrowserModule,

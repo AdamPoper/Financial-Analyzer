@@ -1,0 +1,84 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.symbols-container {
+    display: flex;
+    flex-direction: column;
+    width: 65%;
+}
+
+.symbol-cards {
+    margin-top: 10px;
+    overflow-y: scroll;
+    max-height: 60vh;
+}
+
+.symbol-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    border-bottom: 1px #777 solid;
+}
+
+.symbol-name {
+    display: flex;
+    flex-direction: column;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.symbol-name span:first-child {
+    color: #ccc;
+}
+
+.symbol-name span:nth-child(2) {
+    color: #aaa;
+    font-size: 14px;
+}
+
+.price-change {
+    display: flex;
+    flex-direction: column;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.price-change span:first-child {
+    color: #ccc;
+}
+
+.price-change span:nth-child(2) {
+    border-radius: 5px;
+    color: #2f313d;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.symbol-name span, .price-change span {
+    padding: 3px;
+}
+
+.watch-list-tools {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    margin-left: 30px;
+}
+
+.watch-list-tools a {
+    color: #ccc;
+    margin: 10px;
+    cursor: pointer;
+}
+
+.watch-list-tools a:hover {
+    color: #aaa;
+}
