@@ -18,11 +18,18 @@ export class WatchListsComponent implements OnInit {
 	@ViewChild('selectorWatchList')
 	public watchListSelector: ElementRef | undefined;
 
+	@ViewChild('addSymbolModal')
+	public addSymbolModal: ElementRef | undefined;
+
 	public allWatchLists: WatchList[] = [];
 	public selectedSymbols: WatchListEntry[] | undefined;
 	private selectedWatchListId: string = '';
 	public symbolQuotes: Quote[] = [];
+	public isAddSymbolModalOpen = false;
+	public searchQuote: Quote | undefined;
 	private sub = new SubSink();
+	private searchSymbol: string | undefined;
+	
 
     constructor(private watchListService: WatchListService,
 				private stocksService: StocksService
@@ -61,12 +68,46 @@ export class WatchListsComponent implements OnInit {
 
 	public getChangeDisplay(change: number): string {
 		const value = AppUtil.round(change, 2);
-		return value > 0.0 ? '+' + value + '%' : value.toString() + '%';
+		return value > 0.0 ? '+' + value.toFixed(2) + '%' : value.toFixed(2) + '%';
 	}
 
 	public getPriceDisplay(price: number): string {
 		const value = AppUtil.round(price, 2);
-		return `$${value}`;
+		return `$${value.toFixed(2)}`;
+	}
+
+	public openAddSymbolModal(): void {
+		this.isAddSymbolModalOpen = true;
+	}
+
+	public closeAddSymbolModal(): void {
+		this.isAddSymbolModalOpen = false;
+		this.searchSymbol = undefined;
+	}
+
+	public onAddSymbolInputChange(event: Event): void {
+		this.searchSymbol = (event.target as HTMLInputElement).value;
+	}
+
+	public searchForQuote(): void {
+		if (this.searchSymbol) {
+			this.sub.sink = this.stocksService.fetchQuoteByTicker(this.searchSymbol)
+				.subscribe((quote) => {
+					this.searchQuote = quote;
+				});
+		}
+	}
+
+	public addSymbolToSelectedWatchList(): void {
+		if (this.searchQuote) {
+			this.symbolQuotes.push(this.searchQuote);
+			this.sub.sink = this.watchListService.addSymbolToWatchList(this.selectedWatchListId, this.searchQuote.symbol)
+				.subscribe();
+		}
+	}
+
+	public existsInWatchList(symbol: string): boolean {
+		return !!this.symbolQuotes.find(q => q.symbol === symbol);
 	}
 
 	private fetchSymbolsForSelectedListId(): void {

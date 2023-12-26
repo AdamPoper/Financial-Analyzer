@@ -1,15 +1,14 @@
 .container {
     display: flex;
     flex-direction: row;
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
+    width: 100%;
+    justify-content: center;
 }
 
 .symbols-container {
     display: flex;
     flex-direction: column;
-    width: 65%;
+    width: 50%;
 }
 
 .symbol-cards {
@@ -22,7 +21,7 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    width: 80%;
+    width: 95%;
     margin-left: auto;
     margin-right: auto;
     border-bottom: 1px #777 solid;
@@ -69,8 +68,10 @@
 .watch-list-tools {
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
-    margin-left: 30px;
+    width: 95%;
+    justify-content: space-between;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .watch-list-tools a {
@@ -79,10 +80,73 @@
     cursor: pointer;
 }
 
-.watch-list-tools a:hover {
+.edit-options {
+    margin-left: 30px;
+}
+
+.edit-options a:hover {
     color: #aaa;
 }
 
 .list-empty-message {
     color: #ccc;
+}
+
+.add-symbol-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+}
+
+.input-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.input-button {
+    display: flex;
+    flex-direction: row;
+}
+
+.input-content label {
+    color: #ccc;
+    font-size: 16px;
+}
+
+.input-content input {
+    background-color: #2f313d;
+    color: #ccc;
+    padding: 5px;
+    border: 1px solid #777;
+    border-radius: 5px;
+    margin-top: 5px;
+    max-width: 150px;
+}
+
+button[type=submit] {
+    background-color: #3485d1;
+    color: white;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+  
+button[type=submit]:hover {
+    background-color: #1d7ad1;
+}
+
+.add-symbol-card {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+}
+
+.add-icon {
+    color: #3485d1;
+    margin-left: 15px;
 }
