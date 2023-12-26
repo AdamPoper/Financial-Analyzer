@@ -1,9 +1,13 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Observable, map, tap } from "rxjs";
 import { ProxyConfig } from "src/app/proxy.config";
 import { WatchList } from "../models/watchList";
 import { Injectable } from "@angular/core";
 import { WatchListEntry } from "../models/watchListEntry";
+
+type SimpleResponse = {
+    msg: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class WatchListService {
@@ -25,5 +29,12 @@ export class WatchListService {
     public deleteWatchList(id: string): Observable<any> {
         return this.http.delete<any>(`${ProxyConfig.url}/delete/${id}`)
             .pipe(map(res => res.message));
+    }
+
+    public addSymbolToWatchList(watchListId: string, symbol: string): Observable<any> {
+        return this.http.post<any>(
+            `${ProxyConfig.url}/entry/new/${watchListId}/${symbol}`,
+            {},
+        ).pipe(map(res => res.message));
     }
 }
