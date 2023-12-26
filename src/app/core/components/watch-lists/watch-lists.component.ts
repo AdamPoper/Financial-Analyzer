@@ -4,7 +4,7 @@ import { WatchList } from '../../models/watchList';
 import { WatchListEntry } from '../../models/watchListEntry';
 import { StocksService } from '../../services/stocks.service';
 import { Quote } from '../../models/quote';
-import { map, mergeMap, tap } from 'rxjs';
+import { map, mergeMap, of, tap } from 'rxjs';
 import { SubSink } from '../../util/subSink';
 import { AppUtil } from '../../util/app-util';
 
@@ -18,7 +18,7 @@ export class WatchListsComponent implements OnInit {
 	@ViewChild('selectorWatchList')
 	public watchListSelector: ElementRef | undefined;
 
-	public allWatchLists: WatchList[] | undefined;
+	public allWatchLists: WatchList[] = [];
 	public selectedSymbols: WatchListEntry[] | undefined;
 	private selectedWatchListId: string = '';
 	public symbolQuotes: Quote[] = [];
@@ -49,9 +49,24 @@ export class WatchListsComponent implements OnInit {
 		}
 	}
 
+	public deleteWatchList(): void {
+		this.watchListService.deleteWatchList(this.selectedWatchListId).subscribe();
+		const i = this.allWatchLists.findIndex(w => w.id === this.selectedWatchListId);
+		if (i !== -1) {
+			this.allWatchLists.splice(i, 1);
+		}
+		this.selectedWatchListId = this.allWatchLists[0].id;
+		this.fetchSymbolsForSelectedListId();
+	}
+
 	public getChangeDisplay(change: number): string {
 		const value = AppUtil.round(change, 2);
 		return value > 0.0 ? '+' + value + '%' : value.toString() + '%';
+	}
+
+	public getPriceDisplay(price: number): string {
+		const value = AppUtil.round(price, 2);
+		return `$${value}`;
 	}
 
 	private fetchSymbolsForSelectedListId(): void {
@@ -64,12 +79,10 @@ export class WatchListsComponent implements OnInit {
 				if (symbols.length !== 0) {
 					return this.stocksService.fetchQuotesForMultipleSymbols(symbols);
 				}
-				return [];
+				return of([]);
 			}))
 			.pipe(tap((quotes: Quote[]) => {
 				this.symbolQuotes = quotes.slice();
-				console.log(this.symbolQuotes);
-				return quotes;
 			}))
 			.subscribe();
 	}

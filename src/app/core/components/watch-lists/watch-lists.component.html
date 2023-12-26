@@ -9,7 +9,7 @@
     <div class="symbols-container">
         <div class="watch-list-tools">
             <a>New Watch List</a>
-            <a>Delete Watch List</a>
+            <a (click)="deleteWatchList()">Delete Watch List</a>
             <a>Add Symbol</a>
         </div>
         <div *ngIf="!!selectedSymbols" class="symbol-cards">
@@ -20,7 +20,7 @@
                 </div>
                 <div class="price-change">
                     <span>
-                        {{ '$' + quote.price }}
+                        {{ getPriceDisplay(quote.price) }}
                     </span>
                     <span
                         [ngStyle]="{
@@ -30,6 +30,9 @@
                         {{ getChangeDisplay(quote.changesPercentage) }}
                     </span>
                 </div>
+            </div>
+            <div *ngIf="symbolQuotes.length === 0">
+                <span class="list-empty-message">No Symbols for This Watch List</span>
             </div>
         </div>
     </div>

@@ -82,3 +82,7 @@
 .watch-list-tools a:hover {
     color: #aaa;
 }
+
+.list-empty-message {
+    color: #ccc;
+}
