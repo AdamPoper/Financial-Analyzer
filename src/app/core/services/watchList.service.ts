@@ -44,4 +44,9 @@ export class WatchListService {
             {},
         ).pipe(map(res => res.message));
     }
+
+    public removeSymbolFromWatchList(entryId: string): Observable<any> {
+        return this.http.delete<any>(`${ProxyConfig.url}/entry/delete/${entryId}`)
+            .pipe(map(res => res.message));
+    }
 }

@@ -19,12 +19,13 @@ export class WatchListsComponent implements OnInit {
 	public watchListSelector: ElementRef | undefined;
 
 	public allWatchLists: WatchList[] = [];
-	public selectedSymbols: WatchListEntry[] | undefined;
+	public selectedSymbols: WatchListEntry[] = [];
 	public symbolQuotes: Quote[] = [];
 	public isAddSymbolModalOpen = false;
 	public isAddNewWatchListModalOpen = false;
 	public searchQuote: Quote | undefined;
 	public selectedListName: string | undefined;
+	public isEditing: boolean = false;
 
 	private sub = new SubSink();
 	private selectedWatchListId: string = '';
@@ -146,6 +147,30 @@ export class WatchListsComponent implements OnInit {
 		return !!this.symbolQuotes.find(q => q.symbol === symbol);
 	}
 
+	public isSelected(name: string): boolean {
+		return this.newListName === name;
+	}
+
+	public deleteFromList(symbol: string): void {
+		symbol = symbol.toLowerCase();
+		const selectedSymbol = this.selectedSymbols.find(s => s.symbol === symbol);
+		if (selectedSymbol) {
+			this.sub.sink = this.watchListService.removeSymbolFromWatchList(
+				selectedSymbol.id
+			).subscribe(() => {
+				const quote = this.symbolQuotes.find(q => q.symbol.toLowerCase() === symbol);
+				if (quote) {
+					AppUtil.removeFromArray<Quote>(this.symbolQuotes, quote);
+				}
+				AppUtil.removeFromArray<WatchListEntry>(this.selectedSymbols, selectedSymbol);
+			});
+		}
+	}
+
+	public toggleEditing(): void {
+		this.isEditing = !this.isEditing;
+	}
+
 	private fetchSymbolsForSelectedListId(): void {
 		this.sub.sink = this.watchListService.fetchAllEntriesByWatchListId(this.selectedWatchListId)
 			.pipe(map((watchListSymbols: WatchListEntry[]) => {
@@ -162,9 +187,5 @@ export class WatchListsComponent implements OnInit {
 				this.symbolQuotes = quotes.slice();
 			}))
 			.subscribe();
-	}
-
-	public isSelected(name: string): boolean {
-		return this.newListName === name;
 	}
 }

@@ -17,6 +17,7 @@
                 <a (click)="openAddNewWatchListModal()">New Watch List</a>
                 <a (click)="deleteWatchList()">Delete Watch List</a>
                 <a (click)="openAddSymbolModal()">Add Symbol</a>
+                <a (click)="toggleEditing()">Edit</a>
             </div>
         </div>
         <div *ngIf="!!selectedSymbols" class="symbol-cards">
@@ -25,17 +26,22 @@
                     <span>{{ quote.symbol }}</span>
                     <span>{{ quote.name }}</span>
                 </div>
-                <div class="price-change">
-                    <span>
-                        {{ getPriceDisplay(quote.price) }}
-                    </span>
-                    <span
-                        [ngStyle]="{
-                            'background-color': quote.changesPercentage < 0 ? '#eb4b4b' : '#3dd153'
-                        }"
-                    >
-                        {{ getChangeDisplay(quote.changesPercentage) }}
-                    </span>
+                <div class="price-change-edit">
+                    <div class="price-change">
+                        <span>
+                            {{ getPriceDisplay(quote.price) }}
+                        </span>
+                        <span
+                            [ngStyle]="{
+                                'background-color': quote.changesPercentage < 0 ? '#eb4b4b' : '#3dd153'
+                            }"
+                        >
+                            {{ getChangeDisplay(quote.changesPercentage) }}
+                        </span>
+                    </div>
+                    <div *ngIf="isEditing">
+                        <button (click)="deleteFromList(quote.symbol)" class="delete-button">X</button>
+                    </div>
                 </div>
             </div>
             <div *ngIf="symbolQuotes.length === 0">

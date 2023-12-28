@@ -164,3 +164,18 @@ button[type=submit]:hover {
 .new-watch-list-container form button {
     margin-top: 10px;
 }
+
+.delete-button {
+    color: #eb4b4b;
+    background-color: #2f313d;
+    border: none;
+    margin-left: 15px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.price-change-edit {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
