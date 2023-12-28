@@ -8,6 +8,7 @@ import { AppUtil } from '../../util/app-util';
 import { Dividend } from '../../models/dividend';
 import { GeneralFinancialStatement } from '../../models/financial-statement';
 import { historicalDividendsLabel, cashFlowTermsOfInterest, incomeTermsOfInterest, balanceSheetTermsOfInterest } from './accountingTermsOfInterest'
+import { ActivatedRoute, Router } from '@angular/router';
 
 interface CanvasInterval {
     date: string;
@@ -63,7 +64,9 @@ export class StocksComponent implements OnInit {
     private reportingPeriods: Map<string, string>;
     private allStatementCategoryEntries: Map<string, string>;
 
-    constructor(private stocksService: StocksService) {
+    constructor(private stocksService: StocksService,
+                private activatedRoute: ActivatedRoute
+    ) {
         this.ticker = '';
         this.activeSelectedKey = '';
         this.shouldOpenChartModal = false;
@@ -86,7 +89,11 @@ export class StocksComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        
+        const symbol = this.activatedRoute.snapshot.paramMap.get('symbol');
+        if (symbol) {
+            this.ticker = symbol;
+            this.onTickerSearch();
+        }
     }
 
     public onTickerSearch(): void {

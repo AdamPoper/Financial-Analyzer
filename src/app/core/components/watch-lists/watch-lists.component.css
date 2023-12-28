@@ -32,6 +32,7 @@
     flex-direction: column;
     padding-top: 15px;
     padding-bottom: 15px;
+    cursor: pointer;
 }
 
 .symbol-name span:first-child {

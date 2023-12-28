@@ -7,6 +7,7 @@ import { Quote } from '../../models/quote';
 import { map, mergeMap, of, tap } from 'rxjs';
 import { SubSink } from '../../util/subSink';
 import { AppUtil } from '../../util/app-util';
+import { Router } from '@angular/router';
 
 @Component({
 	selector: 'app-watch-lists',
@@ -33,7 +34,8 @@ export class WatchListsComponent implements OnInit {
 	private newListName: string | undefined;
 
     constructor(private watchListService: WatchListService,
-				private stocksService: StocksService
+				private stocksService: StocksService,
+				private router: Router
 	) { }
 
 	ngOnInit(): void {
@@ -169,6 +171,10 @@ export class WatchListsComponent implements OnInit {
 
 	public toggleEditing(): void {
 		this.isEditing = !this.isEditing;
+	}
+
+	public navigateToSymbolQuote(symbol: string): void {
+		this.router.navigateByUrl(`/stocks/${symbol}`);
 	}
 
 	private fetchSymbolsForSelectedListId(): void {

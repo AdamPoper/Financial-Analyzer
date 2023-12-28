@@ -8,6 +8,7 @@ import { WatchListsComponent } from './core/components/watch-lists/watch-lists.c
 const routes: Routes = [
   { path: '', component: StocksComponent },
   { path: 'stocks', component: StocksComponent },
+  { path: 'stocks/:symbol', component: StocksComponent },
   { path: 'bonds', component: BondsComponent },
   { path: 'commodities', component: CommoditiesComponent },
   { path: 'watchLists', component: WatchListsComponent }

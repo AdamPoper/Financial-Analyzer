@@ -22,7 +22,7 @@
         </div>
         <div *ngIf="!!selectedSymbols" class="symbol-cards">
             <div *ngFor="let quote of symbolQuotes" class="symbol-card">
-                <div class="symbol-name">
+                <div class="symbol-name" (click)="navigateToSymbolQuote(quote.symbol)">
                     <span>{{ quote.symbol }}</span>
                     <span>{{ quote.name }}</span>
                 </div>
