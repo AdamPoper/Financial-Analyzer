@@ -2,14 +2,19 @@
     <div class="symbols-container">
         <div class="watch-list-tools">
             <div *ngIf="!!allWatchLists && allWatchLists.length > 0">
-                <select #selectorWatchList class="selector-primary" (change)="changeSelectorOption()">
-                    <option *ngFor="let w of allWatchLists">
+                <select 
+                    #selectorWatchList 
+                    class="selector-primary" 
+                    (change)="changeSelectorOption()"
+                    [(ngModel)]="selectedListName"
+                >
+                    <option *ngFor="let w of allWatchLists" [selected]="isSelected(w.name)">
                         {{ w.name }}
                     </option>
                 </select>
             </div>
             <div class="edit-options">
-                <a>New Watch List</a>
+                <a (click)="openAddNewWatchListModal()">New Watch List</a>
                 <a (click)="deleteWatchList()">Delete Watch List</a>
                 <a (click)="openAddSymbolModal()">Add Symbol</a>
             </div>
@@ -94,6 +99,23 @@
                     </svg>
                 </div>
             </div>
+        </div>
+    </app-modal>
+    <app-modal
+        #newWatchListModal
+        [isOpen]="isAddNewWatchListModalOpen"
+        (closeModalEvent)="closeAddWatchListModal()"
+    >
+        <div class="new-watch-list-container">
+            <form (ngSubmit)="createNewWatchList()">
+                <label for="new-list-name">Create New Watch List</label>
+                <input 
+                    name="new-list-name" type="text" 
+                    (input)="onAddNewListInputChange($event)"
+                    placeholder="New List Name..."
+                />
+                <button type="submit">Create</button>
+            </form>
         </div>
     </app-modal>
 </div>

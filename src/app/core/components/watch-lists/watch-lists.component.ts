@@ -18,18 +18,18 @@ export class WatchListsComponent implements OnInit {
 	@ViewChild('selectorWatchList')
 	public watchListSelector: ElementRef | undefined;
 
-	@ViewChild('addSymbolModal')
-	public addSymbolModal: ElementRef | undefined;
-
 	public allWatchLists: WatchList[] = [];
 	public selectedSymbols: WatchListEntry[] | undefined;
-	private selectedWatchListId: string = '';
 	public symbolQuotes: Quote[] = [];
 	public isAddSymbolModalOpen = false;
+	public isAddNewWatchListModalOpen = false;
 	public searchQuote: Quote | undefined;
+	public selectedListName: string | undefined;
+
 	private sub = new SubSink();
+	private selectedWatchListId: string = '';
 	private searchSymbol: string | undefined;
-	
+	private newListName: string | undefined;
 
     constructor(private watchListService: WatchListService,
 				private stocksService: StocksService
@@ -41,6 +41,7 @@ export class WatchListsComponent implements OnInit {
 				this.allWatchLists = watchLists.slice();
 				if (this.allWatchLists.length > 0) {
 					this.selectedWatchListId = this.allWatchLists[0].id;
+					this.selectedListName = this.allWatchLists[0].name;
 					this.fetchSymbolsForSelectedListId();
 				}
 			}
@@ -48,8 +49,7 @@ export class WatchListsComponent implements OnInit {
 	}
 
 	public changeSelectorOption() : void {
-		const value = this.watchListSelector?.nativeElement.value;
-		const selectedList = this.allWatchLists?.find(w => w.name === value);
+		const selectedList = this.allWatchLists?.find(w => w.name === this.selectedListName);
 		if (selectedList) {
 			this.selectedWatchListId = selectedList.id;
 			this.fetchSymbolsForSelectedListId();
@@ -63,6 +63,7 @@ export class WatchListsComponent implements OnInit {
 			this.allWatchLists.splice(i, 1);
 		}
 		this.selectedWatchListId = this.allWatchLists[0].id;
+		this.selectedListName = this.allWatchLists[0].name;
 		this.fetchSymbolsForSelectedListId();
 	}
 
@@ -80,13 +81,26 @@ export class WatchListsComponent implements OnInit {
 		this.isAddSymbolModalOpen = true;
 	}
 
+	public openAddNewWatchListModal(): void {
+		this.isAddNewWatchListModalOpen = true;
+	}
+
 	public closeAddSymbolModal(): void {
 		this.isAddSymbolModalOpen = false;
 		this.searchSymbol = undefined;
 	}
 
+	public closeAddWatchListModal(): void {
+		this.isAddNewWatchListModalOpen = false;
+		this.newListName = undefined;
+	}
+
 	public onAddSymbolInputChange(event: Event): void {
 		this.searchSymbol = (event.target as HTMLInputElement).value;
+	}
+
+	public onAddNewListInputChange(event: Event): void {
+		this.newListName = (event.target as HTMLInputElement).value;
 	}
 
 	public searchForQuote(): void {
@@ -103,6 +117,28 @@ export class WatchListsComponent implements OnInit {
 			this.symbolQuotes.push(this.searchQuote);
 			this.sub.sink = this.watchListService.addSymbolToWatchList(this.selectedWatchListId, this.searchQuote.symbol)
 				.subscribe();
+		}
+	}
+
+	public createNewWatchList(): void {
+		if (this.newListName) {
+			this.sub.sink = this.watchListService.createNewWatchList(this.newListName)
+				.pipe(mergeMap(() => this.watchListService.fetchAllWatchLists()))
+				.pipe(tap((watchLists: WatchList[]) => {
+					this.allWatchLists = watchLists.slice();
+					const newList = this.allWatchLists.find(w => w.name === this.newListName);
+					
+					if (newList) {
+						this.selectedWatchListId = newList.id;
+					}
+
+					if (this.watchListSelector) {
+						this.selectedListName = this.newListName;
+					}
+					
+					this.fetchSymbolsForSelectedListId();
+					this.closeAddWatchListModal();
+				})).subscribe();
 		}
 	}
 
@@ -126,5 +162,9 @@ export class WatchListsComponent implements OnInit {
 				this.symbolQuotes = quotes.slice();
 			}))
 			.subscribe();
+	}
+
+	public isSelected(name: string): boolean {
+		return this.newListName === name;
 	}
 }

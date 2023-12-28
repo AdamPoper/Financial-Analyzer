@@ -37,4 +37,11 @@ export class WatchListService {
             {},
         ).pipe(map(res => res.message));
     }
+
+    public createNewWatchList(listName: string): Observable<any> {
+        return this.http.post<any>(
+            `${ProxyConfig.url}/new/${listName}`,
+            {},
+        ).pipe(map(res => res.message));
+    }
 }

@@ -115,7 +115,7 @@
     font-size: 16px;
 }
 
-.input-content input {
+input[type=text] {
     background-color: #2f313d;
     color: #ccc;
     padding: 5px;
@@ -149,4 +149,18 @@ button[type=submit]:hover {
 .add-icon {
     color: #3485d1;
     margin-left: 15px;
+}
+
+.new-watch-list-container form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.new-watch-list-container form label {
+    color: #ccc;
+}
+
+.new-watch-list-container form button {
+    margin-top: 10px;
 }
