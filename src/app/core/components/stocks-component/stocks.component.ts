@@ -8,7 +8,8 @@ import { AppUtil } from '../../util/app-util';
 import { Dividend } from '../../models/dividend';
 import { GeneralFinancialStatement } from '../../models/financial-statement';
 import { historicalDividendsLabel, cashFlowTermsOfInterest, incomeTermsOfInterest, balanceSheetTermsOfInterest } from './accountingTermsOfInterest'
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { SubSink } from '../../util/subSink';
 
 interface CanvasInterval {
     date: string;
@@ -63,6 +64,7 @@ export class StocksComponent implements OnInit {
     public activeSelectedKey: string;
     private reportingPeriods: Map<string, string>;
     private allStatementCategoryEntries: Map<string, string>;
+    private sub = new SubSink();
 
     constructor(private stocksService: StocksService,
                 private activatedRoute: ActivatedRoute
@@ -107,7 +109,7 @@ export class StocksComponent implements OnInit {
         if (this.ticker && this.ticker !== '') {
             const start = AppUtil.yearsAgoFromToday(1);
             const today = new Date();
-            combineLatest([
+            this.sub.sink = combineLatest([
                 this.stocksService.fetchQuoteByTicker(this.ticker),
                 this.stocksService.fetchTickerHistoricalPrices(start, today, this.ticker),
                 this.stocksService.fetchDividendDataByTicker(this.ticker),
@@ -196,7 +198,7 @@ export class StocksComponent implements OnInit {
                                 this.chartDataConfigForPopUp = quarterlyDataConfig;
                             });
                         } else if (Object.keys(incomeTermsOfInterest).find(keyTerm => keyTerm === this.activeSelectedKey)) {
-                            this.stocksService.fetchIncomeStatements(
+                            this.sub.sink = this.stocksService.fetchIncomeStatements(
                                 this.ticker,
                                 ReportingPeriod.Quarterly,
                                 25
@@ -208,7 +210,7 @@ export class StocksComponent implements OnInit {
                                 this.chartDataConfigForPopUp = quarterlyDataConfig;
                             });
                         } else if (Object.keys(balanceSheetTermsOfInterest).find(keyTerm => keyTerm === this.activeSelectedKey)) {
-                            this.stocksService.fetchBalanceSheetStatements(
+                            this.sub.sink = this.stocksService.fetchBalanceSheetStatements(
                                 this.ticker,
                                 ReportingPeriod.Quarterly,
                                 25
@@ -414,7 +416,7 @@ export class StocksComponent implements OnInit {
             const dataSet = this.getPriceHistory(start, end);
             this.initChartConfig(dataSet);
         } else {
-            this.stocksService.fetchTickerHistoricalPrices(start, end, this.ticker)
+            this.sub.sink = this.stocksService.fetchTickerHistoricalPrices(start, end, this.ticker)
             .subscribe((intervals: Array<Interval>) => {
                 intervals.reverse();
                 this.priceHistories.set(this.selectedTimePeriodOption, intervals);
