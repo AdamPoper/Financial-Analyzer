@@ -49,6 +49,23 @@
             </div>
         </div>
     </div>
+    <div *ngIf="!!this.chartConfigData" class="opportunity-tracker-container">
+        <h1>
+            200 Day Moving Average Tracker
+        </h1>
+        <div class="dividing-line-horizontal"></div>
+        <div class="opportunity-tracker">
+            <div class="chart-container">
+                <canvas
+                    baseChart
+                    [type]="'bar'"
+                    [data]="chartConfigData"
+                    [options]="chartConfigOptions"
+                >
+                </canvas>
+            </div>
+        </div>
+    </div>
     <app-modal
         #addSymbolModal
         [isOpen]="isAddSymbolModalOpen"

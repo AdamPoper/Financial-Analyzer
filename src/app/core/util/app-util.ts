@@ -52,6 +52,12 @@ export class AppUtil {
         return this.weeksAgoFromSpecifiedDate(52 * numYears, new Date());
     }
 
+    public static daysAgoFromToday(numDays: number, date: Date): Date {
+        const newDate = new Date();
+        newDate.setDate(date.getDate() - numDays);
+        return newDate;
+    }
+
     public static round(value: number, decimalPlaces: number): number {
         const n = Math.pow(10, decimalPlaces);
         return Math.round(value * n) / n;

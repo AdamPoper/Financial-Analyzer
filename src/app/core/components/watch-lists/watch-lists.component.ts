@@ -4,10 +4,17 @@ import { WatchList } from '../../models/watchList';
 import { WatchListEntry } from '../../models/watchListEntry';
 import { StocksService } from '../../services/stocks.service';
 import { Quote } from '../../models/quote';
-import { map, mergeMap, of, tap } from 'rxjs';
+import { Observable, combineLatest, map, mergeMap, of, tap } from 'rxjs';
 import { SubSink } from '../../util/subSink';
 import { AppUtil } from '../../util/app-util';
 import { Router } from '@angular/router';
+import { ChartConfiguration } from 'chart.js';
+import { Interval } from '../../models/interval';
+
+type IntervalSymbol = {
+	symbol: string,
+	data: Interval[];
+}
 
 @Component({
 	selector: 'app-watch-lists',
@@ -27,6 +34,8 @@ export class WatchListsComponent implements OnInit {
 	public searchQuote: Quote | undefined;
 	public selectedListName: string | undefined;
 	public isEditing: boolean = false;
+	public chartConfigOptions: ChartConfiguration['options'] | undefined;
+	public chartConfigData: ChartConfiguration['data'] | undefined;
 
 	private sub = new SubSink();
 	private selectedWatchListId: string = '';
@@ -49,6 +58,14 @@ export class WatchListsComponent implements OnInit {
 				}
 			}
 		});
+
+		this.chartConfigOptions = {
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
 	}
 
 	public changeSelectorOption() : void {
@@ -119,6 +136,7 @@ export class WatchListsComponent implements OnInit {
 		if (this.searchQuote) {
 			this.symbolQuotes.push(this.searchQuote);
 			this.sub.sink = this.watchListService.addSymbolToWatchList(this.selectedWatchListId, this.searchQuote.symbol)
+				.pipe(mergeMap(() => this.generateChartData()))
 				.subscribe();
 		}
 	}
@@ -141,7 +159,8 @@ export class WatchListsComponent implements OnInit {
 					
 					this.fetchSymbolsForSelectedListId();
 					this.closeAddWatchListModal();
-				})).subscribe();
+				}))
+				.subscribe(() => this.chartConfigData = undefined);
 		}
 	}
 
@@ -159,13 +178,16 @@ export class WatchListsComponent implements OnInit {
 		if (selectedSymbol) {
 			this.sub.sink = this.watchListService.removeSymbolFromWatchList(
 				selectedSymbol.id
-			).subscribe(() => {
+			)
+			.pipe(mergeMap(() => {
 				const quote = this.symbolQuotes.find(q => q.symbol.toLowerCase() === symbol);
 				if (quote) {
 					AppUtil.removeFromArray<Quote>(this.symbolQuotes, quote);
 				}
 				AppUtil.removeFromArray<WatchListEntry>(this.selectedSymbols, selectedSymbol);
-			});
+				return this.generateChartData();
+			}))
+			.subscribe();
 		}
 	}
 
@@ -189,9 +211,53 @@ export class WatchListsComponent implements OnInit {
 				}
 				return of([]);
 			}))
-			.pipe(tap((quotes: Quote[]) => {
+			.pipe(mergeMap((quotes: Quote[]) => {
 				this.symbolQuotes = quotes.slice();
+				if (this.symbolQuotes.length !== 0) {
+					return this.generateChartData();
+				}
+				this.chartConfigData = undefined;
+				return of();
 			}))
 			.subscribe();
+	}
+
+	private generateChartData(): Observable<any> {
+		const fetchSymbols = this.symbolQuotes.map(sym => this.getHistoricalPriceInfo(sym.symbol));
+		const chartLabels = new Array<string>();
+		const chartData = new Array<number>();
+		return combineLatest(fetchSymbols)
+			.pipe(tap((intervalData: IntervalSymbol[]) => {
+				const period = 200;
+				for (const intervalSymbol of intervalData) {
+					const symbol = intervalSymbol.symbol;
+					const interval = intervalSymbol.data;
+					const countDoomed = interval.length - period;
+					interval.splice(period, countDoomed);
+					const sma200 = interval.map(i => i.close)
+						.reduce((prev, current) => prev + current) / period;
+					const currentPrice = this.symbolQuotes.find(sq => sq.symbol === symbol)?.price || 0
+					const sma200Divergence = ((1 - (sma200 / currentPrice)) * 100);
+					chartData.push(sma200Divergence);
+					chartLabels.push(symbol);
+				}
+				this.chartConfigData = AppUtil.createDefaultAppChartDataConfig(
+					chartData,
+					chartLabels
+				);
+			}));
+	}
+
+	private getHistoricalPriceInfo(symbol: string): Observable<IntervalSymbol> {
+		symbol = symbol.toUpperCase();
+		const end = new Date();
+		const start = AppUtil.daysAgoFromToday(365, end);
+		return this.stocksService.fetchTickerHistoricalPrices(start, end, symbol)
+			.pipe(map((intervals: Interval[]) => {
+				return {
+					symbol: symbol,
+					data: intervals
+				} as IntervalSymbol;
+			}))
 	}
 }
