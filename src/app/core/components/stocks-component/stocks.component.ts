@@ -7,9 +7,10 @@ import { combineLatest, tap } from 'rxjs';
 import { AppUtil } from '../../util/app-util';
 import { Dividend } from '../../models/dividend';
 import { GeneralFinancialStatement } from '../../models/financial-statement';
-import { historicalDividendsLabel, cashFlowTermsOfInterest, incomeTermsOfInterest, balanceSheetTermsOfInterest } from './accountingTermsOfInterest'
+import { historicalDividendsLabel, cashFlowTermsOfInterest, incomeTermsOfInterest, balanceSheetTermsOfInterest, historicalSharesOutstandingLabel } from './accountingTermsOfInterest'
 import { ActivatedRoute } from '@angular/router';
 import { SubSink } from '../../util/subSink';
+import { ShareCount } from '../../models/shareCount';
 
 interface CanvasInterval {
     date: string;
@@ -45,6 +46,7 @@ export class StocksComponent implements OnInit {
     public ticker: string;
     public priceHistories: Map<string, Array<Interval>>;
     public dividendHistory: Array<Dividend>;
+    public shareCountHistory: Array<ShareCount>;
     public quote: Quote | undefined;
     public selectedTimePeriodOption: string = ChartTimePeriods.OneYear;
     public selectedReportingPeriod: string = ReportingPeriod.Annual;
@@ -74,6 +76,7 @@ export class StocksComponent implements OnInit {
         this.shouldOpenChartModal = false;
         this.priceHistories = new Map<string, Array<Interval>>();
         this.dividendHistory = new Array<Dividend>();
+        this.shareCountHistory = new Array<ShareCount>();
         this.cashFlowStatements = new Array<GeneralFinancialStatement>();
         this.cashFlowChartDataConfigs = new Map<string, ChartConfiguration['data']>();
         this.incomeStatements = new Array<GeneralFinancialStatement>();
@@ -87,6 +90,7 @@ export class StocksComponent implements OnInit {
         allEntries.push(...Object.entries(incomeTermsOfInterest));
         allEntries.push(...Object.entries(balanceSheetTermsOfInterest));
         allEntries.push(...Object.entries(historicalDividendsLabel));
+        allEntries.push(...Object.entries(historicalSharesOutstandingLabel));
         this.allStatementCategoryEntries = new Map<string, string>(allEntries);
     }
 
@@ -106,9 +110,11 @@ export class StocksComponent implements OnInit {
         this.incomeStatements = new Array<GeneralFinancialStatement>();
         this.balanceSheetStatements = new Array<GeneralFinancialStatement>();
         this.selectedTimePeriodOption = ChartTimePeriods.OneYear;
+        this.chartDataConfigForPopUp = undefined;
         if (this.ticker && this.ticker !== '') {
             const start = AppUtil.yearsAgoFromToday(1);
             const today = new Date();
+
             this.sub.sink = combineLatest([
                 this.stocksService.fetchQuoteByTicker(this.ticker),
                 this.stocksService.fetchTickerHistoricalPrices(start, today, this.ticker),
@@ -330,6 +336,27 @@ export class StocksComponent implements OnInit {
                 this.dividendHistory.map(d => d.date).slice(0, 40).reverse()
             );
         }
+    }
+
+    public viewHistoricalSharesOutstanding(): void {
+        this.sub.sink = this.stocksService.fetchHistoricalSharesOutstanding(this.ticker)
+            .subscribe((data: ShareCount[]) => {
+                const sharesOutstanding = data
+                .filter((_, index) => index % 14 === 0)    
+                .map(e => {
+                    return {
+                        date: e.date,
+                        sharesOutstanding: e.outstandingShares
+                    }
+                }).reverse();
+                this.shouldOpenChartModal = !this.shouldOpenChartModal;
+                this.selectedReportingPeriod = ReportingPeriod.None;
+                this.activeSelectedKey = Object.keys(historicalSharesOutstandingLabel)[0];
+                this.chartDataConfigForPopUp = AppUtil.createDefaultAppChartDataConfig(
+                    sharesOutstanding.map(sc => sc.sharesOutstanding),
+                    sharesOutstanding.map(sc => sc.date)
+                );
+            });
     }
 
     public getCategoryValueByKey(key: string): string | undefined {
