@@ -97,6 +97,12 @@
                 <span>{{ quote.pe ? quote.pe : '-' }}</span>
             </div>
             <div class="quote-details-container">
+                <span>
+                    <a (click)="viewHistoricalSharesOutstanding()">Shares Outstanding</a>
+                </span>
+                <span>{{ quote.sharesOutstanding ? quote.sharesOutstanding : '-' }}</span>
+            </div>
+            <div class="quote-details-container">
                 <span>Earnings Announcement</span>
                 <span>{{ dateFormat(quote.earningsAnnouncement) }}</span>
             </div>

@@ -8,6 +8,7 @@ import { Historical } from "../models/historical";
 import { AppUtil } from "../util/app-util";
 import { GeneralFinancialStatement } from "../models/financial-statement";
 import { API_KEY } from "src/app/apiKey";
+import { ShareCount } from "../models/shareCount";
 
 @Injectable({providedIn: 'root'})
 export class StocksService {
@@ -61,6 +62,13 @@ export class StocksService {
             .pipe(map((data: Historical<Dividend>) => {
                 return this.mapHistorical<Dividend>(data, ticker);
             }));
+    }
+
+    public fetchHistoricalSharesOutstanding(symbol: string): Observable<Array<ShareCount>> {
+        symbol = symbol.toUpperCase();
+        return this.http.get<Array<ShareCount>>(
+            `https://financialmodelingprep.com/api/v4/historical/shares_float?symbol=${symbol}&apikey=${API_KEY}`
+        );
     }
 
     public fetchCashFlowStatements(

@@ -2,6 +2,10 @@ export const historicalDividendsLabel = {
     historicalDividend: 'Dividend History'
 };
 
+export const historicalSharesOutstandingLabel = {
+    historicalShareCount: 'Outstanding Share Count History'
+};
+
 export const cashFlowTermsOfInterest = {
     freeCashFlow: 'Free Cash Flow',
     depreciationAndAmortization: 'Depreciation and Amortization',
