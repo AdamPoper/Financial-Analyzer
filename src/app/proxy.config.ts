@@ -1,3 +1,3 @@
 export const ProxyConfig = {
-    url: 'http://localhost:5555/watchList'
+    url: 'http://localhost:3000/'
 };

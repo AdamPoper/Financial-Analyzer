@@ -3,6 +3,9 @@ import { IndexService } from './core/services/index.service';
 import { Index } from './core/models';
 import { GeneralMarketService } from './core/services/general-market.service';
 import { AppUtil } from './core/util/app-util';
+import { UserQuery } from './core/query/user.query';
+import { map, Observable } from 'rxjs';
+import { User } from './core/models/user';
 
 const AmericanIndexSymbols = {
   SP500: '^GSPC',
@@ -23,17 +26,22 @@ export class AppComponent implements OnInit {
 
 	constructor(
 		private indexService: IndexService,
-		private generalMarketService: GeneralMarketService
-	) {
+		private generalMarketService: GeneralMarketService,
+		private userQuery: UserQuery
+	) { }
+
+	ngOnInit(): void {
 		this.indices = new Array<Index>();
 		this.mainAmericanIndices = new Array<Index>();
 		this.isMarketOpen = false;
-	}
-
-	ngOnInit(): void {
 		this.fetchAllMajorIndices();
 		this.fetchIsMarketOpen();
 		this.isMarketOpen = false;
+	}
+
+	public isUserLoggedIn$(): Observable<boolean> {
+		return this.userQuery.currentUser$
+			.pipe(map((user: User) => user != null));
 	}
 
 	public round(value: number) {
@@ -45,7 +53,7 @@ export class AppComponent implements OnInit {
 		.subscribe((indices: Index[]) => {
 			this.indices = [...indices];
 			for(const symbol of Object.values(AmericanIndexSymbols)) {
-			const index = this.indices.find(i => i.symbol === symbol);
+				const index = this.indices.find(i => i.symbol === symbol);
 				if (index) {
 					this.mainAmericanIndices.push(index);
 				}
