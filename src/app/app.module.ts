@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { NgChartsModule } from 'ng2-charts';
 import { ModalComponent } from './core/components/modal/modal.component';
 import { WatchListsComponent } from './core/components/watch-lists/watch-lists.component';
+import { LoginComponent } from './core/components/login-component/login.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { WatchListsComponent } from './core/components/watch-lists/watch-lists.c
     BondsComponent,
     CommoditiesComponent,
     ModalComponent,
-    WatchListsComponent
+    WatchListsComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
