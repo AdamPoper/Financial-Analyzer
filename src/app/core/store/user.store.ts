@@ -1,4 +1,4 @@
-import { Store } from "@datorama/akita";
+import { Store, StoreConfig } from "@datorama/akita";
 import { User } from "../models/user";
 import { Injectable } from "@angular/core";
 
@@ -13,6 +13,7 @@ const initialState = (): UserState => {
 }
 
 @Injectable({providedIn: 'root'})
+@StoreConfig({ name: 'user' })
 export class UserStore extends Store<UserState> {
     constructor() {
         super(initialState());
