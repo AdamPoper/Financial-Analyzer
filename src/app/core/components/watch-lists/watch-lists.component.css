@@ -127,7 +127,7 @@ input[type=text] {
 }
 
 button[type=submit] {
-    background-color: #3485d1;
+    background-color: var(--blue-primary);
     color: white;
     padding: 5px;
     border: none;
@@ -148,7 +148,7 @@ button[type=submit]:hover {
 }
 
 .add-icon {
-    color: #3485d1;
+    color: var(--blue-primary);
     margin-left: 15px;
 }
 
