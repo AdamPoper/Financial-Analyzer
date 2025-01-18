@@ -6,6 +6,7 @@ import { AppUtil } from './core/util/app-util';
 import { UserQuery } from './core/query/user.query';
 import { map, Observable } from 'rxjs';
 import { User } from './core/models/user';
+import { AuthenticationService } from './core/services/auth.service';
 
 const AmericanIndexSymbols = {
   SP500: '^GSPC',
@@ -27,7 +28,8 @@ export class AppComponent implements OnInit {
 	constructor(
 		private indexService: IndexService,
 		private generalMarketService: GeneralMarketService,
-		private userQuery: UserQuery
+		private userQuery: UserQuery,
+		private authService: AuthenticationService
 	) { }
 
 	ngOnInit(): void {
@@ -46,6 +48,10 @@ export class AppComponent implements OnInit {
 
 	public round(value: number) {
 		return AppUtil.round(value, 2);
+	}
+
+	public onLogout() {
+		this.authService.logout();
 	}
 
 	private fetchAllMajorIndices() {
