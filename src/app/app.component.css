@@ -6,8 +6,23 @@ h1 {
 }
 
 .container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
     background-color: #2f313d;
     height: 100vh;
+}
+
+.logout {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.logout a {
+    padding: 10px;
+    color: #ccc;
+    cursor: pointer;
 }
 
 .market-status {

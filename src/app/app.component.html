@@ -1,5 +1,8 @@
 <div class="container">
-  <div *ngIf="isUserLoggedIn$() | async" class="market-status">    
+  <div class="logout">
+    <a (click)="onLogout()">Logout</a>
+  </div>
+  <div *ngIf="isUserLoggedIn$() | async" class="market-status">
     <div class="indices">
       <div 
         class="index-status" 
