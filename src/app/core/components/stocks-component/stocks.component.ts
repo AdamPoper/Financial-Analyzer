@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { StocksService } from '../../services/stocks.service';
 import { Interval } from '../../models/interval';
 import { Quote } from '../../models/quote';
@@ -8,7 +8,7 @@ import { AppUtil } from '../../util/app-util';
 import { Dividend } from '../../models/dividend';
 import { GeneralFinancialStatement } from '../../models/financial-statement';
 import { historicalDividendsLabel, cashFlowTermsOfInterest, incomeTermsOfInterest, balanceSheetTermsOfInterest, historicalSharesOutstandingLabel } from './accountingTermsOfInterest'
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SubSink } from '../../util/subSink';
 import { ShareCount } from '../../models/shareCount';
 
@@ -41,7 +41,7 @@ const ReportingPeriod = {
     templateUrl: './stocks.component.html',
     styleUrls: ['./stocks.component.css']
 })
-export class StocksComponent implements OnInit {
+export class StocksComponent implements OnInit, OnDestroy {
   
     public ticker: string;
     public priceHistories: Map<string, Array<Interval>>;
@@ -69,7 +69,8 @@ export class StocksComponent implements OnInit {
     private sub = new SubSink();
 
     constructor(private stocksService: StocksService,
-                private activatedRoute: ActivatedRoute
+                private activatedRoute: ActivatedRoute,
+                private router: Router
     ) {
         this.ticker = '';
         this.activeSelectedKey = '';
@@ -111,6 +112,7 @@ export class StocksComponent implements OnInit {
         this.balanceSheetStatements = new Array<GeneralFinancialStatement>();
         this.selectedTimePeriodOption = ChartTimePeriods.OneYear;
         this.chartDataConfigForPopUp = undefined;
+        this.router.navigate(['/stocks', this.ticker]);
         if (this.ticker && this.ticker !== '') {
             const start = AppUtil.yearsAgoFromToday(1);
             const today = new Date();
@@ -506,5 +508,9 @@ export class StocksComponent implements OnInit {
             }
         }
         return dataSet;
+    }
+
+    ngOnDestroy(): void {
+        this.sub.unsubscribe();
     }
 }

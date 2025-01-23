@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { WatchListService } from '../../services/watchList.service';
 import { WatchList } from '../../models/watchList';
 import { WatchListEntry } from '../../models/watchListEntry';
@@ -21,7 +21,7 @@ type IntervalSymbol = {
 	templateUrl: './watch-lists.component.html',
 	styleUrls: ['./watch-lists.component.css']
 })
-export class WatchListsComponent implements OnInit {
+export class WatchListsComponent implements OnInit, OnDestroy {
 
 	@ViewChild('selectorWatchList')
 	public watchListSelector: ElementRef | undefined;
@@ -259,5 +259,9 @@ export class WatchListsComponent implements OnInit {
 					data: intervals
 				} as IntervalSymbol;
 			}))
+	}
+
+	ngOnDestroy(): void {
+		this.sub.unsubscribe();
 	}
 }
