@@ -1,4 +1,4 @@
-.login-dialog {
+.signup-dialog {
     background-color: #2f313d;
     color: white;
     width: 300px;
@@ -8,9 +8,8 @@
     left: 50%;
     transform: translate(-50%, -50%);
 }
-
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 2px;
 }
 
 .form-group label {
@@ -26,12 +25,10 @@
     border-radius: 4px;
 }
 
-.form-group .error-message {
-    color: red;
-    font-size: 12px;
-    margin-top: 5px;
+button {
+    margin-top: 10px;
 }
 
-.signup {
-    margin-left: 10px;
+button[type="submit"] {
+    margin-right: 10px;
 }

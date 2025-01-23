@@ -16,24 +16,29 @@ export class AuthenticationService {
 
     constructor(private http: HttpClient, 
                 private userStore: UserStore,
-                private router: Router) { 
+                private router: Router) { }
 
-    }
-
-    public login(username: string, password: string): Observable<boolean> {
+    public login(username: string, password: string): Observable<ApiResponse> {
         const params = new HttpParams()
             .set('username', username)
             .set('password', password);
 
         return this.http.get<ApiResponse>(`${ProxyConfig.url}/authenticate`, { params })
-            .pipe(map((res: ApiResponse) => {
+            .pipe(tap((res: ApiResponse) => {
                 if ((res as User).username) {
                     this.userStore.update({ currentUser: res as User });
                     sessionStorage.setItem(CURRENT_USER, JSON.stringify(res));
-                    return true;
-                } else {
-                    alert((res as ErrorResponse).message);
-                    return false;
+                }
+            }));
+    }
+
+    public signUp(username: string, password: string): Observable<ApiResponse> {
+        const body = { username, password };
+        return this.http.post<ApiResponse>(`${ProxyConfig.url}/authenticate/add`, body)
+            .pipe(tap((res: ApiResponse) => {
+                if ((res as User).username) {
+                    this.userStore.update({ currentUser: res as User });
+                    sessionStorage.setItem(CURRENT_USER, JSON.stringify(res));
                 }
             }));
     }
