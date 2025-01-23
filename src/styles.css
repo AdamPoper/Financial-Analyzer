@@ -15,4 +15,34 @@
 
 :root {
     --blue-primary: #3485d1;
+    --blue-secondary: #266299;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: 2px solid var(--blue-primary);
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background-color: var(--blue-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--blue-secondary);
+    border-color: var(--blue-secondary);
+}
+
+.btn-secondary {
+    color: var(--blue-primary);
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.btn-secondary:hover {
+    background-color: var(--blue-primary);
+    color: white;
 }
